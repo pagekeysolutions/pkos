@@ -10,11 +10,9 @@ include:
     file: 03-docs/docgen.yaml
 
 stages:
-  - version
-  - test
   - docs
   - build
-  - publish
+  - test
 
 
 # workflow:
