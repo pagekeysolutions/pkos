@@ -1,4 +1,4 @@
-OS4 - Debugging, Functions, and FUN
+# OS4: Debugging, Functions, and FUN
 Tuesday, December 31, 2019
 6:41 PM
 

@@ -1,4 +1,4 @@
-OS2 - Running Our First Bootloader
+# OS2: Running Our First Bootloader
 Tuesday, December 24, 2019
 9:21 AM
 

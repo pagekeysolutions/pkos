@@ -1,29 +1,46 @@
-workflow:
-  rules:
-    - if: $CI_PIPELINE_SOURCE == 'merge_request_event' # i hate merge request pipelines
-      when: never
-    - when: always
+include:
+  # - project: pagekey/libs/cicd
+  #   ref: main
+  #   file: 01-version/semantic-release.yaml
+  # - project: pagekey/libs/cicd
+  #   ref: main
+  #   file: 02-test/pytest.yaml
+  - project: pagekey/libs/cicd
+    ref: main
+    file: 03-docs/docgen.yaml
 
 stages:
+  - docs
   - build
   - test
 
-build:
-  image: registry.gitlab.com/pagekeytech/pkos:latest
-  stage: build
-  script:
-    - scripts/os.py build
-  artifacts:
-    paths:
-      - dist/*
 
-test:
-  image: registry.gitlab.com/pagekeytech/pkos:latest
-  stage: test
-  needs:
-    - build
-  script:
-    - ./scripts/os.py test
-  artifacts:
-    paths:
-      - public/
+# workflow:
+#   rules:
+#     - if: $CI_PIPELINE_SOURCE == 'merge_request_event' # i hate merge request pipelines
+#       when: never
+#     - when: always
+
+# stages:
+#   - build
+#   - test
+
+# build:
+#   image: registry.gitlab.com/pagekeytech/pkos:latest
+#   stage: build
+#   script:
+#     - scripts/os.py build
+#   artifacts:
+#     paths:
+#       - dist/*
+
+# test:
+#   image: registry.gitlab.com/pagekeytech/pkos:latest
+#   stage: test
+#   needs:
+#     - build
+#   script:
+#     - ./scripts/os.py test
+#   artifacts:
+#     paths:
+#       - public/
