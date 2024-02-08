@@ -25,22 +25,22 @@ stages:
 #   - build
 #   - test
 
-build:
-  image: registry.gitlab.com/pagekeytech/pkos:latest
-  stage: build
-  script:
-    - scripts/os.py build
-  artifacts:
-    paths:
-      - dist/*
+# build:
+#   image: registry.gitlab.com/pagekeytech/pkos:latest
+#   stage: build
+#   script:
+#     - scripts/os.py build
+#   artifacts:
+#     paths:
+#       - dist/*
 
-test:
-  image: registry.gitlab.com/pagekeytech/pkos:latest
-  stage: test
-  needs:
-    - build
-  script:
-    - ./scripts/os.py test
-  artifacts:
-    paths:
-      - public/
+# test:
+#   image: registry.gitlab.com/pagekeytech/pkos:latest
+#   stage: test
+#   needs:
+#     - build
+#   script:
+#     - ./scripts/os.py test
+#   artifacts:
+#     paths:
+#       - public/
