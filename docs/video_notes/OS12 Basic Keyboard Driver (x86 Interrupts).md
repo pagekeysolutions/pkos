@@ -1,4 +1,4 @@
-OS12 Interrupts
+# OS12: Interrupts
 Saturday, June 27, 2020
 7:33 PM
  

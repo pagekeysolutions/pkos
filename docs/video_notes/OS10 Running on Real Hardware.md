@@ -1,4 +1,5 @@
-OS10 Booting from ISO
+# OS10: Running on Real Hardware (Boot from ISO)
+
 Saturday, June 27, 2020
 9:19 PM
  

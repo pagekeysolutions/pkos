@@ -1,4 +1,4 @@
-OS3 - Hone the Power of the BIOS
+# OS3: Hone the Power of the BIOS
 Tuesday, December 24, 2019
 5:56 PM
 
