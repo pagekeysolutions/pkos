@@ -5,8 +5,8 @@ include:
   # - project: pagekey/libs/cicd
   #   ref: main
   #   file: 02-test/pytest.yaml
-  - project: pagekeystreaming/cicd
-    ref: 2-non-poetry
+  - project: pagekey/libs/cicd
+    ref: main
     file: 03-docs/docgen.yaml
 
 stages:
