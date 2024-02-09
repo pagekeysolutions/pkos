@@ -11,10 +11,53 @@
 #define GRAPHICS_REG_DATA 0x3cf
 #define GRAPHICS_IDX_MISC 0x06
 
+// EXT (External/General) Registers: http://www.osdever.net/FreeVGA/vga/extreg.htm
+#define VGA_MISC_IN  0x3CC // Miscellaneous Output Register (read)
+#define VGA_MISC_OUT 0x3C2 // Miscellaneous Output Register (write)
+
+// SEQ (Sequencer) Registers: http://www.osdever.net/FreeVGA/vga/seqreg.htm
+#define VGA_SEQ_ADDR 0x3C4
+#define VGA_SEQ_DATA 0x3C5
+#define VGA_SEQ_REG_RESET 0x00 // Reset Register
+#define VGA_SEQ_REG_CLOCK 0x01 // Clocking Mode Register
+#define VGA_SEQ_REG_MAP   0x02 // Map Mask Register
+#define VGA_SEQ_REG_CHAR  0x03 // Character Map Select Register
+#define VGA_SEQ_REG_MEM   0x04 // Sequencer Memory Mode Register
+
+// CRTC (Cathode Ray Tube Controller): http://www.osdever.net/FreeVGA/vga/crtcreg.htm
+
+// GC (Graphics Controller): http://www.osdever.net/FreeVGA/vga/graphreg.htm
+struct GraphicsController {
+	u8 regSetReset; 		// Set/Reset Register
+	u8 regEnableSetReset; 	// Enable Set/Reset Register
+	u8 regColorCompare;		// Color Compare Register
+	u8 regDataRotate;  		// Data Rotate Register
+	u8 regReadMap;			// Read Map Select Register
+	u8 regGraphicsMode;		// Graphics Mode Register
+	u8 regMisc;				// Miscellaneous Graphics Register
+	u8 regColorDontCare;	// Color Don't Care Register
+	u8 regBitMask;			// Bit Mask Register
+};
+#define VGA_GRAPHICS_ADDR 0x3ce
+#define VGA_GRAPHICS_DATA 0x3cf
+#define VGA_GRAPHICS_REG_SR 			0x00
+#define VGA_GRAPHICS_REG_ENABLE_SR		0x01
+#define VGA_GRAPHICS_REG_COLORCOMPARE	0x02
+#define VGA_GRAPHICS_REG_DATAROTATE		0x03
+#define VGA_GRAPHICS_REG_READMAP		0x04
+#define VGA_GRAPHICS_REG_GRAPHICSMODE	0x05
+#define VGA_GRAPHICS_REG_MISC 			0x06
+#define VGA_GRAPHICS_REG_COLORDONTCARE	0x07
+#define VGA_GRAPHICS_REG_BITMASK		0x08
+
+// AC (Attribute Controller) Registers: http://www.osdever.net/FreeVGA/vga/attrreg.htm
+
+
 unsigned int vga_mode_var = 0;
 
 // Graphics Registers: 0x3ce = addr, 0x3cf = data
 // see http://www.osdever.net/FreeVGA/vga/graphreg.htm
+// Advice for accessing VGA registers: http://www.osdever.net/FreeVGA/vga/vgareg.htm
 unsigned int get_graphics_reg(unsigned int index) {
 	unsigned int saved_addr_reg = ioport_in(GRAPHICS_REG_ADDR);
 	ioport_out(GRAPHICS_REG_ADDR, index);
@@ -52,6 +95,7 @@ void vga_info() {
 	println(itoab(mem_map_select, buffer));
 	print("Alphanumeric disable: 0b");
 	println(itoa(alpha_dis, buffer));
+
 }
 
 void vga_enter() {
