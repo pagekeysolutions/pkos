@@ -29,6 +29,8 @@ void set_graphics_reg(unsigned int index, unsigned int value) {
 	ioport_out(GRAPHICS_REG_ADDR, saved_addr_reg); // restore address register
 }
 
+
+
 void vga_info() {
 	println("Getting VGA info");
 	unsigned int misc_reg = get_graphics_reg(GRAPHICS_IDX_MISC);
@@ -67,7 +69,12 @@ void vga_enter() {
 	set_graphics_reg(GRAPHICS_IDX_MISC, misc_reg);
 
 	memset(0xb8000, 0, 60);
-    // vga_clear_screen();
+	vga_clear_screen();
+	vga_plot_pixel(0,0,COLOR_GREEN);
+	vga_plot_pixel(1,0,COLOR_GREEN);
+    vga_plot_pixel(1,1,COLOR_GREEN);
+    vga_plot_pixel(2,1,COLOR_GREEN);
+    vga_plot_pixel(2,2,COLOR_GREEN);
 	// // draw rectangle
 	// draw_rectangle(150, 10, 100, 50);
 	// // draw some faces
@@ -142,6 +149,12 @@ void vga_clear_screen() {
 
 void vga_plot_pixel(int x, int y, unsigned short color) {
     unsigned short offset = x + 320 * y;
-    unsigned char *VGA = (unsigned char*) VGA_ADDRESS;
-    VGA[offset] = color;
+	unsigned char *PLANE0 = (unsigned char*) PLANE0_ADDRESS;
+    PLANE0[offset] = color;
+	unsigned char *PLANE1 = (unsigned char*) PLANE1_ADDRESS;
+    PLANE1[offset] = color;
+	unsigned char *PLANE2 = (unsigned char*) PLANE2_ADDRESS;
+    PLANE2[offset] = color;
+	unsigned char *PLANE3 = (unsigned char*) PLANE3_ADDRESS;
+    PLANE3[offset] = color;
 }
