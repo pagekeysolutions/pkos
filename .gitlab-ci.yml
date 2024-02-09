@@ -1,7 +1,7 @@
 include:
-  # - project: pagekey/libs/cicd
-  #   ref: main
-  #   file: 01-version/semantic-release.yaml
+  - project: pagekey/libs/cicd
+    ref: main
+    file: 01-version/semantic-release.yaml
   # - project: pagekey/libs/cicd
   #   ref: main
   #   file: 02-test/pytest.yaml
@@ -10,6 +10,7 @@ include:
     file: 03-docs/docgen.yaml
 
 stages:
+  - version
   - docs
   - build
   - test
