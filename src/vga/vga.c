@@ -50,12 +50,12 @@ void vga_info() {
 	println("Graphics Controller:");
 	struct GraphicsController gc;
 	get_gc(gc);
-	print_gc(gc);
+	// print_gc(gc);
 	println("--------------------");
 	println("Attribute Controller:");
 	struct AttributeController ac;
 	get_ac(ac);
-	// print_ac(ac);
+	print_ac(ac);
 	println("--------------------");
 }
 

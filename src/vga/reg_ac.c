@@ -1,9 +1,12 @@
 #include "reg_ac.h"
 #include "../common/types.h"
 
+// Palette Address Source
+// Set to 1 unless loading colors
+#define PAS_BIT 0b100000
 
 u32 get_reg_ac(u32 index) {
-    return get_reg(VGA_AC_ADDR, VGA_AC_DATA, index);
+    return get_reg(VGA_AC_ADDR | PAS_BIT, VGA_AC_DATA, index);
 }
 u32 set_reg_ac(u32 index, u32 value) {
     set_reg(VGA_AC_ADDR, VGA_AC_DATA, index, value);
@@ -21,7 +24,7 @@ void set_ac(struct AttributeController config) {
 }
 
 void get_ac(struct AttributeController config) {
-    for (u8 i = 0; i < 16; i++) {
+    for (u8 i = 0; i < 15; i++) {
         config.regPalettes[i] = get_reg_ac(VGA_AC_REG_PALETTE + i);
     }
     config.regAttributeMode = get_reg_gc(VGA_AC_REG_ATTRIB);
