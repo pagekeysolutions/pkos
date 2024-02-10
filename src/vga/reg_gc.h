@@ -27,14 +27,10 @@ struct GraphicsController {
 #define VGA_GRAPHICS_REG_COLORDONTCARE	0x07
 #define VGA_GRAPHICS_REG_BITMASK		0x08
 
-
-u32 get_reg_gc(u32 index);
-
 void set_graphics_controller(struct GraphicsController config);
 
 void get_graphics_controller(struct GraphicsController config);
 
 void print_gc(struct GraphicsController gc);
-
 
 #endif
