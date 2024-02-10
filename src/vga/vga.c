@@ -2,6 +2,7 @@
 #include "../kernel/kernel.h"
 #include "../memory/memory.h"
 #include "../screen/screen.h"
+#include "reg_ac.h"
 #include "reg_gc.h"
 
 #define COLOR_BLACK 0x0
@@ -46,10 +47,15 @@ u32 set_reg(u32 address, u32 data, u32 index, u32 value) {
 
 
 void vga_info() {
-	println("Graphics Controller:")
+	println("Graphics Controller:");
 	struct GraphicsController gc;
-	get_graphics_controller(gc);
+	get_gc(gc);
 	print_gc(gc);
+	println("--------------------");
+	println("Attribute Controller:");
+	struct AttributeController ac;
+	get_ac(ac);
+	// print_ac(ac);
 	println("--------------------");
 }
 
@@ -64,9 +70,9 @@ void vga_enter() {
 
 	// Set alphanumeric disable = 1
 	struct GraphicsController config;
-	get_graphics_controller(config);
+	get_gc(config);
 	config.regMisc |= 1;
-	set_graphics_controller(config);
+	set_gc(config);
 
 	memset(0xb8000, 0, 60);
 	vga_clear_screen();
@@ -97,11 +103,11 @@ void vga_exit() {
 	if (vga_mode_var == 0) return;
 	// Go back to alphanumeric disable 0
 	struct GraphicsController config;
-	get_graphics_controller(config);
+	get_gc(config);
 	config.regMisc &= 0;
 	config.regMisc |= 0b10; // bit 1 is RAM enable, set it to 1
 	config.regMisc |= 0b1100; // set mem map select to 11
-	set_graphics_controller(config);
+	set_gc(config);
 
 	// Restore text-mode video memory
 	memcpy(0xb8000, 0x0010b8000, COLS*ROWS*2);

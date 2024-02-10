@@ -15,22 +15,24 @@ struct GraphicsController {
 	u8 regColorDontCare;	// Color Don't Care Register
 	u8 regBitMask;			// Bit Mask Register
 };
-#define VGA_GRAPHICS_ADDR 0x3ce
-#define VGA_GRAPHICS_DATA 0x3cf
-#define VGA_GRAPHICS_REG_SR 			0x00
-#define VGA_GRAPHICS_REG_ENABLE_SR		0x01
-#define VGA_GRAPHICS_REG_COLORCOMPARE	0x02
-#define VGA_GRAPHICS_REG_DATAROTATE		0x03
-#define VGA_GRAPHICS_REG_READMAP		0x04
-#define VGA_GRAPHICS_REG_GRAPHICSMODE	0x05
-#define VGA_GRAPHICS_REG_MISC 			0x06
-#define VGA_GRAPHICS_REG_COLORDONTCARE	0x07
-#define VGA_GRAPHICS_REG_BITMASK		0x08
+// Ports
+#define VGA_GC_ADDR 0x3ce
+#define VGA_GC_DATA 0x3cf
+// Indices
+#define VGA_GC_REG_SR 				0x00
+#define VGA_GC_REG_ENABLE_SR		0x01
+#define VGA_GC_REG_COLORCOMPARE		0x02
+#define VGA_GC_REG_DATAROTATE		0x03
+#define VGA_GC_REG_READMAP			0x04
+#define VGA_GC_REG_GRAPHICSMODE		0x05
+#define VGA_GC_REG_MISC 			0x06
+#define VGA_GC_REG_COLORDONTCARE	0x07
+#define VGA_GC_REG_BITMASK			0x08
 
-void set_graphics_controller(struct GraphicsController config);
+void set_gc(struct GraphicsController config);
 
-void get_graphics_controller(struct GraphicsController config);
+void get_gc(struct GraphicsController config);
 
-void print_gc(struct GraphicsController gc);
+void print_gc(struct GraphicsController config);
 
 #endif
