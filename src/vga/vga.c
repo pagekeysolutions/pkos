@@ -3,6 +3,7 @@
 #include "../memory/memory.h"
 #include "../screen/screen.h"
 #include "reg_ac.h"
+#include "reg_ext.h"
 #include "reg_gc.h"
 
 #define COLOR_BLACK 0x0
@@ -47,15 +48,20 @@ u32 set_reg(u32 address, u32 data, u32 index, u32 value) {
 
 
 void vga_info() {
-	println("Graphics Controller:");
-	struct GraphicsController gc;
-	get_gc(gc);
-	print_gc(gc);
-	println("--------------------");
 	println("Attribute Controller:");
 	struct AttributeController ac;
 	get_ac(ac);
 	// print_ac(ac);
+	println("--------------------");
+	println("External/General:");
+	struct ExternalGeneral ext;
+	get_ext(ext);
+	print_ext(ext);
+	println("--------------------");
+	println("Graphics Controller:");
+	struct GraphicsController gc;
+	get_gc(gc);
+	// print_gc(gc);
 	println("--------------------");
 }
 
