@@ -2,6 +2,7 @@
 #include "../kernel/kernel.h"
 #include "../memory/memory.h"
 #include "../screen/screen.h"
+#include "reg_gc.h"
 
 #define COLOR_BLACK 0x0
 #define COLOR_GREEN 0x2
@@ -88,7 +89,10 @@ void vga_info() {
 	println(itoab(mem_map_select, buffer));
 	print("Alphanumeric disable: 0b");
 	println(itoa(alpha_dis, buffer));
-
+	println("----------------------------------------");
+	struct GraphicsController gc;
+	get_graphics_controller(gc);
+	print_gc(gc);
 }
 
 void vga_enter() {
