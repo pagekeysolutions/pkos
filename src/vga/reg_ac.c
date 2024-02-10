@@ -34,22 +34,22 @@ void get_ac(struct AttributeController config) {
     config.regPixelShift    = get_reg_gc(VGA_AC_REG_PIXEL_SHIFT);
 }
 
-void print_ac(struct AttributeController ac) {
+void print_ac(struct AttributeController config) {
     char buffer[8];
     for (u8 i = 0; i < 16; i++) {
         print("Palette ");
         print(itoa(i));
         print(": 0b");
-        println(itoab(ac.regPalettes[i], buffer));
+        println(itoab(config.regPalettes[i], buffer));
     }
     print("Attribute Mode Control: 0b");
-	println(itoab(ac.regAttributeMode, buffer));
+	println(itoab(config.regAttributeMode, buffer));
     print("Overscan Color: 0b");
-	println(itoab(ac.regOverscanColor, buffer));
+	println(itoab(config.regOverscanColor, buffer));
     print("Color Plane Enable: 0b");
-	println(itoab(ac.regColorPlane, buffer));
+	println(itoab(config.regColorPlane, buffer));
     print("Horizontal Pixel Panning: 0b");
-	println(itoab(ac.regHorizPixel, buffer));
+	println(itoab(config.regHorizPixel, buffer));
     print("Pixel Shift Count: 0b");
-	println(itoab(ac.regPixelShift, buffer));
+	println(itoab(config.regPixelShift, buffer));
 }

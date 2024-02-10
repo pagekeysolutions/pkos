@@ -33,24 +33,24 @@ void get_gc(struct GraphicsController config) {
     config.regBitMask           = get_reg_gc(VGA_GC_REG_BITMASK);
 }
 
-void print_gc(struct GraphicsController gc) {
+void print_gc(struct GraphicsController config) {
     char buffer[8];
     print("Set/Reset: 0b");
-	println(itoab(gc.regSetReset, buffer));
+	println(itoab(config.regSetReset, buffer));
     print("Enable Set/Reset: 0b");
-	println(itoab(gc.regEnableSetReset, buffer));
+	println(itoab(config.regEnableSetReset, buffer));
     print("Color Compare: 0b");
-	println(itoab(gc.regColorCompare, buffer));
+	println(itoab(config.regColorCompare, buffer));
     print("Data Rotate: 0b");
-	println(itoab(gc.regDataRotate, buffer));
+	println(itoab(config.regDataRotate, buffer));
     print("Read Map Select: 0b");
-	println(itoab(gc.regReadMap, buffer));
+	println(itoab(config.regReadMap, buffer));
     print("Graphics Mode: 0b");
-	println(itoab(gc.regGraphicsMode, buffer));
+	println(itoab(config.regGraphicsMode, buffer));
     print("Miscellaneous Graphics: 0b");
-	println(itoab(gc.regMisc, buffer));
+	println(itoab(config.regMisc, buffer));
     print("Color Don't Care: 0b");
-	println(itoab(gc.regColorDontCare, buffer));
+	println(itoab(config.regColorDontCare, buffer));
     print("Bit Mask: 0b");
-	println(itoab(gc.regBitMask, buffer));
+	println(itoab(config.regBitMask, buffer));
 }
