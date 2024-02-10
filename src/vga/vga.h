@@ -3,6 +3,8 @@
 
 #include "../common/types.h"
 
+// Advice for accessing VGA registers: http://www.osdever.net/FreeVGA/vga/vgareg.htm
+
 #define VGA_ADDRESS 0xB8000
 #define PLANE0_ADDRESS 0xA0000
 #define PLANE1_ADDRESS 0xA0000

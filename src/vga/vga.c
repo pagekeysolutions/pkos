@@ -8,33 +8,10 @@
 #define COLOR_GREEN 0x2
 #define COLOR_PURPLE 0xf
 
-#define GRAPHICS_REG_ADDR 0x3ce
-#define GRAPHICS_REG_DATA 0x3cf
 #define GRAPHICS_IDX_MISC 0x06
 
 
-
-
-
 unsigned int vga_mode_var = 0;
-
-// Graphics Registers: 0x3ce = addr, 0x3cf = data
-// see http://www.osdever.net/FreeVGA/vga/graphreg.htm
-// Advice for accessing VGA registers: http://www.osdever.net/FreeVGA/vga/vgareg.htm
-unsigned int get_graphics_reg(unsigned int index) {
-	unsigned int saved_addr_reg = ioport_in(GRAPHICS_REG_ADDR);
-	ioport_out(GRAPHICS_REG_ADDR, index);
-	unsigned int graphics_reg_value = ioport_in(GRAPHICS_REG_DATA);
-	ioport_out(GRAPHICS_REG_ADDR, saved_addr_reg); // restore address register
-	return graphics_reg_value;
-}
-void set_graphics_reg(unsigned int index, unsigned int value) {
-	unsigned int saved_addr_reg = ioport_in(GRAPHICS_REG_ADDR);
-	ioport_out(GRAPHICS_REG_ADDR, index);
-	ioport_out(GRAPHICS_REG_DATA, value);
-	ioport_out(GRAPHICS_REG_ADDR, saved_addr_reg); // restore address register
-}
-
 
 u32 get_reg(u32 address, u32 data, u32 index) {
     /**
@@ -69,30 +46,11 @@ u32 set_reg(u32 address, u32 data, u32 index, u32 value) {
 
 
 void vga_info() {
-	println("Getting VGA info");
-	unsigned int misc_reg = get_graphics_reg(GRAPHICS_IDX_MISC);
-	// RAM Enable: is VGA checking the memory set by CPU? (are we bothering to use mem-mapped I/O from CPU?)
-	unsigned int ram_enable = (misc_reg & 0b10) >> 1;
-	// Memory Map Select: which area of memory should be used to draw the screen?
-	unsigned int mem_map_select = (misc_reg & 0b1100) >> 2;
-	// Alphanumeric Disable: are we disabling text mode (and instead interpreting memory as pixels?)
-	unsigned int alpha_dis = misc_reg & 1;
-	// Pretty-print each of these fields
-	print("RAM enable: ");
-	if (ram_enable == 0) {
-		println("disabled");
-	} else {
-		println("enabled");
-	}
-	print("Memory Map Select: 0b");
-	char buffer[2];
-	println(itoab(mem_map_select, buffer));
-	print("Alphanumeric disable: 0b");
-	println(itoa(alpha_dis, buffer));
-	println("----------------------------------------");
+	println("Graphics Controller:")
 	struct GraphicsController gc;
 	get_graphics_controller(gc);
 	print_gc(gc);
+	println("--------------------");
 }
 
 void vga_enter() {
@@ -105,9 +63,10 @@ void vga_enter() {
 	memcpy(0x0010b8000, 0xb8000, COLS*ROWS*2);
 
 	// Set alphanumeric disable = 1
-	unsigned int misc_reg = get_graphics_reg(GRAPHICS_IDX_MISC);
-	misc_reg |= 1; // bit 0 is alphanumeric disable, set it to 1
-	set_graphics_reg(GRAPHICS_IDX_MISC, misc_reg);
+	struct GraphicsController config;
+	get_graphics_controller(config);
+	config.regMisc |= 1;
+	set_graphics_controller(config);
 
 	memset(0xb8000, 0, 60);
 	vga_clear_screen();
@@ -137,11 +96,12 @@ void vga_enter() {
 void vga_exit() {
 	if (vga_mode_var == 0) return;
 	// Go back to alphanumeric disable 0
-	unsigned int misc_reg = get_graphics_reg(GRAPHICS_IDX_MISC);
-	misc_reg &= 0; // set alphanum disable back to 0
-	misc_reg |= 0b10; // bit 1 is RAM enable, set it to 1
-	misc_reg |= 0b1100; // set mem map select to 11
-	set_graphics_reg(GRAPHICS_IDX_MISC, misc_reg);
+	struct GraphicsController config;
+	get_graphics_controller(config);
+	config.regMisc &= 0;
+	config.regMisc |= 0b10; // bit 1 is RAM enable, set it to 1
+	config.regMisc |= 0b1100; // set mem map select to 11
+	set_graphics_controller(config);
 
 	// Restore text-mode video memory
 	memcpy(0xb8000, 0x0010b8000, COLS*ROWS*2);
