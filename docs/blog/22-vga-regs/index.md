@@ -2,6 +2,8 @@
 
 TODO intro
 
+Implemented in issue [#2](https://gitlab.com/pagekey/apps/pkos/pkos/-/issues/2) and MR [!2](https://gitlab.com/pagekey/apps/pkos/pkos/-/merge_requests/2).
+
 ## Motivation
 
 TODO
@@ -9,6 +11,8 @@ TODO
 ### How It Looked in OS15
 
 TODO - maybe condense this and the following into one image
+
+[Link](https://gitlab.com/pagekey/apps/pkos/pkos/-/blob/aec21a2e2b9b481a6883ce0843a7c1bd77e537b9/src/vga/vga.c#L9) to register values in working impl
 
 ### How It's Going Now
 

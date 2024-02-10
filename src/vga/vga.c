@@ -10,8 +10,6 @@
 #define COLOR_GREEN 0x2
 #define COLOR_PURPLE 0xf
 
-#define GRAPHICS_IDX_MISC 0x06
-
 
 unsigned int vga_mode_var = 0;
 
@@ -74,19 +72,6 @@ void vga_enter() {
 	// 0xb8000 to 0xbffff (32K)
 	memcpy(0x0010b8000, 0xb8000, COLS*ROWS*2);
 
-	struct GraphicsController gc;
-	get_gc(gc);
-	gc.regSetReset = 0;
-	gc.regEnableSetReset = 0;
-	gc.regColorCompare = 0;
-	gc.regDataRotate = 0;
-	gc.regReadMap = 0;
-	gc.regGraphicsMode = 0x40;
-	gc.regMisc = 0x05;
-	gc.regColorDontCare = 0x0F;
-	gc.regBitMask = 0xFF;
-	set_gc(gc);
-	
 	struct AttributeController ac;
 	get_ac(ac);
 	ac.regPalettes[0] = 0;
@@ -112,13 +97,31 @@ void vga_enter() {
 	ac.regPixelShift = 0;
 	set_ac(ac);
 
+	struct ExternalGeneral ext;
+	get_ext(ext);
+	ext.regMisc = 0x63;
+	set_ext(ext);
+
+	struct GraphicsController gc;
+	get_gc(gc);
+	gc.regSetReset = 0;
+	gc.regEnableSetReset = 0;
+	gc.regColorCompare = 0;
+	gc.regDataRotate = 0;
+	gc.regReadMap = 0;
+	gc.regGraphicsMode = 0x40;
+	gc.regMisc = 0x05;
+	gc.regColorDontCare = 0x0F;
+	gc.regBitMask = 0xFF;
+	set_gc(gc);
+
 	memset(0xb8000, 0, 60);
-	// vga_clear_screen();
-	// vga_plot_pixel(0,0,COLOR_GREEN);
-	// vga_plot_pixel(1,0,COLOR_GREEN);
-    // vga_plot_pixel(1,1,COLOR_GREEN);
-    // vga_plot_pixel(2,1,COLOR_GREEN);
-    // vga_plot_pixel(2,2,COLOR_GREEN);
+	vga_clear_screen();
+	vga_plot_pixel(0, 0, COLOR_GREEN);
+	vga_plot_pixel(1, 0, COLOR_PURPLE);
+    vga_plot_pixel(1,1,COLOR_GREEN);
+    vga_plot_pixel(2,1,COLOR_GREEN);
+    vga_plot_pixel(2,2,COLOR_GREEN);
 	// // draw rectangle
 	// draw_rectangle(150, 10, 100, 50);
 	// // draw some faces

@@ -4,6 +4,22 @@
 
 void set_ext(struct ExternalGeneral config) {
     ioport_out(VGA_MISC_OUT, config.regMisc);
+    u8 ioAddressSelect = config.regMisc & 0b1;
+    /**
+     * The docs say that when this is 0,
+     * you need to use the "mono" addresses provided.
+     * When set to 1, use the "color" address.
+     * Feature Control Register and Input Status #1 Register
+     * both specify separate addresses for mono/color
+     * However, Input Status #0 and #1 are both read-only.
+    */
+    if (ioAddressSelect == 0) {
+        // Mono
+        ioport_out(VGA_FEAT_OUT_MONO, config.regFeature);
+    } else {
+        // Color
+        ioport_out(VGA_FEAT_OUT_COLOR, config.regFeature);
+    }
 }
 
 void get_ext(struct ExternalGeneral config) {
