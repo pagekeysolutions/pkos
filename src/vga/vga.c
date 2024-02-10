@@ -50,12 +50,12 @@ void vga_info() {
 	println("Graphics Controller:");
 	struct GraphicsController gc;
 	get_gc(gc);
-	// print_gc(gc);
+	print_gc(gc);
 	println("--------------------");
 	println("Attribute Controller:");
 	struct AttributeController ac;
 	get_ac(ac);
-	print_ac(ac);
+	// print_ac(ac);
 	println("--------------------");
 }
 
@@ -71,16 +71,24 @@ void vga_enter() {
 	// Set alphanumeric disable = 1
 	struct GraphicsController config;
 	get_gc(config);
-	config.regMisc |= 1;
+	config.regSetReset = 0;
+	config.regEnableSetReset = 0;
+	config.regColorCompare = 0;
+	config.regDataRotate = 0;
+	config.regReadMap = 0;
+	config.regGraphicsMode = 0x40;
+	config.regMisc = 0x05;
+	config.regColorDontCare = 0x0F;
+	config.regBitMask = 0xFF;
 	set_gc(config);
 
 	memset(0xb8000, 0, 60);
-	vga_clear_screen();
-	vga_plot_pixel(0,0,COLOR_GREEN);
-	vga_plot_pixel(1,0,COLOR_GREEN);
-    vga_plot_pixel(1,1,COLOR_GREEN);
-    vga_plot_pixel(2,1,COLOR_GREEN);
-    vga_plot_pixel(2,2,COLOR_GREEN);
+	// vga_clear_screen();
+	// vga_plot_pixel(0,0,COLOR_GREEN);
+	// vga_plot_pixel(1,0,COLOR_GREEN);
+    // vga_plot_pixel(1,1,COLOR_GREEN);
+    // vga_plot_pixel(2,1,COLOR_GREEN);
+    // vga_plot_pixel(2,2,COLOR_GREEN);
 	// // draw rectangle
 	// draw_rectangle(150, 10, 100, 50);
 	// // draw some faces
