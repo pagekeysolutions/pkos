@@ -68,19 +68,43 @@ void vga_enter() {
 	// 0xb8000 to 0xbffff (32K)
 	memcpy(0x0010b8000, 0xb8000, COLS*ROWS*2);
 
-	// Set alphanumeric disable = 1
-	struct GraphicsController config;
-	get_gc(config);
-	config.regSetReset = 0;
-	config.regEnableSetReset = 0;
-	config.regColorCompare = 0;
-	config.regDataRotate = 0;
-	config.regReadMap = 0;
-	config.regGraphicsMode = 0x40;
-	config.regMisc = 0x05;
-	config.regColorDontCare = 0x0F;
-	config.regBitMask = 0xFF;
-	set_gc(config);
+	struct GraphicsController gc;
+	get_gc(gc);
+	gc.regSetReset = 0;
+	gc.regEnableSetReset = 0;
+	gc.regColorCompare = 0;
+	gc.regDataRotate = 0;
+	gc.regReadMap = 0;
+	gc.regGraphicsMode = 0x40;
+	gc.regMisc = 0x05;
+	gc.regColorDontCare = 0x0F;
+	gc.regBitMask = 0xFF;
+	set_gc(gc);
+	
+	struct AttributeController ac;
+	get_ac(ac);
+	ac.regPalettes[0] = 0;
+	ac.regPalettes[1] = 1;
+	ac.regPalettes[2] = 2;
+	ac.regPalettes[3] = 3;
+	ac.regPalettes[4] = 4;
+	ac.regPalettes[5] = 5;
+	ac.regPalettes[6] = 6;
+	ac.regPalettes[7] = 7;
+	ac.regPalettes[8] = 8;
+	ac.regPalettes[9] = 9;
+	ac.regPalettes[10] = 10;
+	ac.regPalettes[11] = 11;
+	ac.regPalettes[12] = 12;
+	ac.regPalettes[13] = 13;
+	ac.regPalettes[14] = 14;
+	ac.regPalettes[15] = 15;
+	ac.regAttributeMode = 0x41;
+	ac.regOverscanColor = 0;
+	ac.regColorPlane = 0xF;
+	ac.regHorizPixel = 0;
+	ac.regPixelShift = 0;
+	set_ac(ac);
 
 	memset(0xb8000, 0, 60);
 	// vga_clear_screen();

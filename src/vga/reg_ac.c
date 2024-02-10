@@ -9,7 +9,7 @@ u32 get_reg_ac(u32 index) {
     return get_reg(VGA_AC_ADDR | PAS_BIT, VGA_AC_DATA, index);
 }
 u32 set_reg_ac(u32 index, u32 value) {
-    set_reg(VGA_AC_ADDR, VGA_AC_DATA, index, value);
+    set_reg(VGA_AC_ADDR | PAS_BIT, VGA_AC_DATA, index, value);
 }
 
 void set_ac(struct AttributeController config) {
