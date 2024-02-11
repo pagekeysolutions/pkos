@@ -128,6 +128,17 @@ void vga_enter() {
 	gc.regBitMask = 0xFF;
 	set_gc(gc);
 
+	// u8 ioAddressSelect = ext.regMisc & 0b1;
+	// struct CathodeRayTubeController crtc;
+	// get_crtc(crtc, ioAddressSelect);
+	// // TODO set relevant fields here
+	// set_crtc(crtc, ioAddressSelect);
+
+	// struct Sequencer seq;
+	// get_seq(seq);
+	// // TODO set relevant fields here
+	// set_seq(seq);
+
 	memset(0xb8000, 0, 60);
 	vga_clear_screen();
 	vga_plot_pixel(0, 0, COLOR_GREEN);
