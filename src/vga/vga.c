@@ -3,6 +3,7 @@
 #include "../memory/memory.h"
 #include "../screen/screen.h"
 #include "reg_ac.h"
+#include "reg_crtc.h"
 #include "reg_ext.h"
 #include "reg_gc.h"
 
@@ -55,6 +56,12 @@ void vga_info() {
 	struct ExternalGeneral ext;
 	get_ext(ext);
 	print_ext(ext);
+	println("--------------------");
+	println("CRT Controller:");
+	u8 ioAddressSelect = ext.regMisc & 0b1;
+	struct CathodeRayTubeController crtc;
+	get_crtc(crtc, ioAddressSelect);
+	print_crtc(crtc, ioAddressSelect);
 	println("--------------------");
 	println("Graphics Controller:");
 	struct GraphicsController gc;

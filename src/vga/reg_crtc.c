@@ -22,17 +22,15 @@ u32 set_reg_crtc(u32 index, u32 value, u8 ioAddressSelect) {
 }
 
 void set_crtc(struct CathodeRayTubeController config, u8 ioAddressSelect) {
-    // TODO
+    set_reg_gc(VGA_CRTC_REG_HORIZ_TOTAL, config.regHorizTotal);
 }
 
 void get_crtc(struct CathodeRayTubeController config, u8 ioAddressSelect) {
-    // TODO
-    config.regMisc = ioport_in(VGA_MISC_IN);
+    config.regHorizTotal = get_reg_gc(VGA_CRTC_REG_HORIZ_TOTAL);
 }
 
 void print_crtc(struct CathodeRayTubeController config, u8 ioAddressSelect) {
-    // TODO
     char buffer[8];
-    print("Miscellaneous Output: 0b");
-	println(itoab(config.regMisc, buffer));
+    print("Horizontal Total: 0b");
+	println(itoab(config.regHorizTotal, buffer));
 }
