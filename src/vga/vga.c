@@ -55,7 +55,7 @@ void vga_info() {
 	println("External/General:");
 	struct ExternalGeneral ext;
 	get_ext(ext);
-	print_ext(ext);
+	// print_ext(ext);
 	println("--------------------");
 	println("CRT Controller:");
 	u8 ioAddressSelect = ext.regMisc & 0b1;

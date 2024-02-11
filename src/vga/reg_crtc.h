@@ -13,7 +13,7 @@ struct CathodeRayTubeController {
     u8 regEndHorizRetrace;      // End Horizontal Retrace Register
     u8 regVertTotal;            // Vertical Total Register
     u8 regOverflow;             // Overflow Register
-    u8 regPresetRowScan;        // Preset Row Scan REgister
+    u8 regPresetRowScan;        // Preset Row Scan Register
     u8 regMaxScanLine;          // Maximum Scan Line Register
     u8 regCursorStart;          // Cursor Start Register
     u8 regCursorEnd;            // Cursor End Register
@@ -22,7 +22,7 @@ struct CathodeRayTubeController {
     u8 regCursorLocationHigh;   // Cursor Location High Register
     u8 regCursorLocationLow;    // Cursor Location Low Register
     u8 regVertRetraceStart;     // Vertical Retrace Start Register
-    u8 regVertRetraceEnd;       // Vertical Retrace Low Register
+    u8 regVertRetraceEnd;       // Vertical Retrace End Register
     u8 regVertDisplayEnd;       // Vertical Display End Register
     u8 regOffset;               // Offset Register
     u8 regUnderlineLocation;    // Underline Location Register
@@ -32,10 +32,10 @@ struct CathodeRayTubeController {
     u8 regLineCompare;          // Line Compare Register
 };
 // Ports
-#define VGA_CRTC_ADDR_MONO   0x3C0
-#define VGA_CRTC_DATA_MONO  0x3C1
-#define VGA_CRTC_ADDR_COLOR  0x3C0
-#define VGA_CRTC_DATA_COLOR 0x3C1
+#define VGA_CRTC_ADDR_MONO      0x3B4
+#define VGA_CRTC_DATA_MONO      0x3B5
+#define VGA_CRTC_ADDR_COLOR     0x3D4
+#define VGA_CRTC_DATA_COLOR     0x3D5
 // Indices
 #define VGA_CRTC_REG_HORIZ_TOTAL            0x00
 #define VGA_CRTC_REG_END_HORIZ_DISP         0x01
