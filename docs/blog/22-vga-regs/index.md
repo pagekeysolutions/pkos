@@ -1,5 +1,7 @@
 # OS22: Fine-Tuned VGA Register Control
 
+(Full VGA Driver)
+
 TODO intro
 
 Implemented in issue [#2](https://gitlab.com/pagekey/apps/pkos/pkos/-/issues/2) and MR [!2](https://gitlab.com/pagekey/apps/pkos/pkos/-/merge_requests/2).
@@ -49,3 +51,11 @@ TODO
 ### CRT Controller (CRTC) Registers
 
 TODO
+
+- See EXT, needed an input bit from it to tell mono vs color
+
+### Sequencer (SEQ) Registers
+
+TODO
+
+- Short, similar to GC approach

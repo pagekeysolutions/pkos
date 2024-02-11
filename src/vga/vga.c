@@ -6,6 +6,7 @@
 #include "reg_crtc.h"
 #include "reg_ext.h"
 #include "reg_gc.h"
+#include "reg_seq.h"
 
 #define COLOR_BLACK 0x0
 #define COLOR_GREEN 0x2
@@ -61,12 +62,17 @@ void vga_info() {
 	u8 ioAddressSelect = ext.regMisc & 0b1;
 	struct CathodeRayTubeController crtc;
 	get_crtc(crtc, ioAddressSelect);
-	print_crtc(crtc, ioAddressSelect);
+	// print_crtc(crtc, ioAddressSelect);
 	println("--------------------");
 	println("Graphics Controller:");
 	struct GraphicsController gc;
 	get_gc(gc);
 	// print_gc(gc);
+	println("--------------------");
+	println("Sequencer:");
+	struct Sequencer seq;
+	get_seq(seq);
+	print_seq(seq);
 	println("--------------------");
 }
 
