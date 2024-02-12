@@ -128,11 +128,35 @@ void vga_enter() {
 	gc.regBitMask = 0xFF;
 	set_gc(gc);
 
-	// u8 ioAddressSelect = ext.regMisc & 0b1;
-	// struct CathodeRayTubeController crtc;
-	// get_crtc(crtc, ioAddressSelect);
-	// // TODO set relevant fields here
-	// set_crtc(crtc, ioAddressSelect);
+	u8 ioAddressSelect = ext.regMisc & 0b1;
+	struct CathodeRayTubeController crtc;
+	get_crtc(crtc, ioAddressSelect);
+	crtc.regHorizTotal = 0x5F;
+	crtc.regEndHorizDisplay = 0x4F;
+	crtc.regStartHorizBlanking = 0x50;
+	crtc.regEndHorizBlanking = 0x82;
+	crtc.regStartHorizRetrace = 0x54;
+	crtc.regEndHorizRetrace = 0x80;
+	crtc.regVertTotal = 0xBF;
+	crtc.regOverflow = 0x1F;
+	crtc.regPresetRowScan = 0x00;
+	crtc.regMaxScanLine = 0x41;
+	crtc.regCursorStart = 0x00;
+	crtc.regCursorEnd = 0x00;
+	crtc.regStartAddressHigh = 0x00;
+	crtc.regStartAddressLow = 0x00;
+	crtc.regCursorLocationHigh = 0x00;
+	crtc.regCursorLocationLow = 0x00;
+	crtc.regVertRetraceStart = 0x9C;
+	crtc.regVertRetraceEnd = 0x0E;
+	crtc.regVertDisplayEnd = 0x8F;
+	crtc.regOffset = 0x28;
+	crtc.regUnderlineLocation = 0x40;
+	crtc.regStartVertBlanking = 0x96;
+	crtc.regEndVertBlanking = 0xB9;
+	crtc.regModeControl = 0xA3;
+	crtc.regLineCompare = 0xFF;
+	set_crtc(crtc, ioAddressSelect);
 
 	// struct Sequencer seq;
 	// get_seq(seq);
