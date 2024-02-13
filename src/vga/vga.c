@@ -55,7 +55,7 @@ void vga_info() {
 	println("--------------------");
 	println("External/General:");
 	struct ExternalGeneral ext;
-	get_ext(ext);
+	// get_ext(ext);
 	// print_ext(ext);
 	println("--------------------");
 	println("CRT Controller:");
@@ -67,12 +67,12 @@ void vga_info() {
 	println("Graphics Controller:");
 	struct GraphicsController gc;
 	get_gc(gc);
-	print_gc(gc);
+	// print_gc(gc);
 	println("--------------------");
 	println("Sequencer:");
 	struct Sequencer seq;
 	get_seq(seq);
-	// print_seq(seq);
+	print_seq(seq);
 	println("--------------------");
 }
 
@@ -133,14 +133,14 @@ void vga_enter() {
 	get_crtc(crtc, ioAddressSelect);
 	// crtc.regHorizTotal = 0x5F;
 	// crtc.regEndHorizDisplay = 0x4F;
-	crtc.regStartHorizBlanking = 0x50;
-	crtc.regEndHorizBlanking = 0x82;
+	// crtc.regStartHorizBlanking = 0x50;
+	// crtc.regEndHorizBlanking = 0x82;
 	// crtc.regStartHorizRetrace = 0x54;
 	// crtc.regEndHorizRetrace = 0x80;
 	// crtc.regVertTotal = 0xBF;
 	// crtc.regOverflow = 0x1F;
 	// crtc.regPresetRowScan = 0x00;
-	crtc.regMaxScanLine = 0x41;
+	// crtc.regMaxScanLine = 0x41;
 	// crtc.regCursorStart = 0x00;
 	// crtc.regCursorEnd = 0x00;
 	// crtc.regStartAddressHigh = 0x00;
@@ -273,13 +273,13 @@ void vga_exit() {
 	// crtc.regLineCompare = 0b111;
 	// set_crtc(crtc, ioAddressSelect);
 
-	// struct Sequencer seq;
-	// get_seq(seq);
-	// seq.regReset = 0;
-	// seq.regClocking = 0b1101111;
-	// seq.regMapMask = 0;
-	// seq.regCharMapSelect = 0;
-	// seq.regSeqMemoryMode = 0;
+	struct Sequencer seq;
+	get_seq(seq);
+	seq.regReset = 0x5;
+	seq.regClocking = 0;
+	seq.regMapMask = 0b0; // enable write to all memory planes
+	seq.regCharMapSelect = 0;
+	seq.regSeqMemoryMode = 0xd6;
 	// set_seq(seq);
 
 	// Restore text-mode video memory

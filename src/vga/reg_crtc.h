@@ -3,7 +3,7 @@
 
 #include "../common/types.h"
 
-// CRTC (Cathode Ray Tube Controller): http://www.osdever.net/FreeVGA/vga/crtcreg.htm
+// CRTC (Cathode Ray Tube Controller): http:///www.osdever.net/FreeVGA/vga/crtcreg.htm
 struct CathodeRayTubeController {
 	u8 regHorizTotal; 	        // Horizontal Total Register
     u8 regEndHorizDisplay;      // End Horizontal Display Register
