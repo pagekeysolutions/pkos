@@ -25,8 +25,14 @@ void set_ext(struct ExternalGeneral config) {
 void get_ext(struct ExternalGeneral config) {
     config.regMisc = ioport_in(VGA_MISC_IN);
     config.regFeature = ioport_in(VGA_FEAT_IN);
+
     config.regInputStatus0 = ioport_in(VGA_INPUT_STATUS_0_IN);
-    config.regInputStatus1 = ioport_in(VGA_INPUT_STATUS_1_IN);
+    u8 ioAddressSelect = config.regMisc & 0b1;
+    if (ioAddressSelect == 0) {
+        config.regInputStatus1 = ioport_in(VGA_INPUT_STATUS_1_IN_MONO);
+    } else {
+        config.regInputStatus1 = ioport_in(VGA_INPUT_STATUS_1_IN_COLOR);
+    }
 }
 
 void print_ext(struct ExternalGeneral config) {

@@ -17,8 +17,8 @@ struct ExternalGeneral {
 #define VGA_FEAT_OUT_MONO       0x3BA // Feature Control Register (write, mono)
 #define VGA_FEAT_OUT_COLOR      0x3DA // Feature Control Register (write, color)
 #define VGA_INPUT_STATUS_0_IN   0x3C2 // Input Status #0 Register (read-only)
-#define VGA_INPUT_STATUS_1_IN   0x3C2 // Input Status #1 Register (read-only)
-
+#define VGA_INPUT_STATUS_1_IN_MONO   0x3BA // Input Status #1 Register (read-only, MONO)
+#define VGA_INPUT_STATUS_1_IN_COLOR  0x3DA // Input Status #1 Register (read-only, COLOR)
 
 void set_ext(struct ExternalGeneral config);
 
