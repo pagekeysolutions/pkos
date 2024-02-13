@@ -16,8 +16,8 @@ struct GraphicsController {
 	u8 regBitMask;			// Bit Mask Register
 };
 // Ports
-#define VGA_GC_ADDR 0x3ce
-#define VGA_GC_DATA 0x3cf
+#define VGA_GC_ADDR 0x3CE
+#define VGA_GC_DATA 0x3CF
 // Indices
 #define VGA_GC_REG_SR 				0x00
 #define VGA_GC_REG_ENABLE_SR		0x01
