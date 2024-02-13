@@ -158,10 +158,14 @@ void vga_enter() {
 	crtc.regLineCompare = 0xFF;
 	set_crtc(crtc, ioAddressSelect);
 
-	// struct Sequencer seq;
-	// get_seq(seq);
-	// // TODO set relevant fields here
-	// set_seq(seq);
+	struct Sequencer seq;
+	get_seq(seq);
+	seq.regReset = 0x03;
+	seq.regClocking = 0x01;
+	seq.regMapMask = 0x0F;
+	seq.regCharMapSelect = 0x00;
+	seq.regSeqMemoryMode = 0x0E;
+	set_seq(seq);
 
 	memset(0xb8000, 0, 60);
 	vga_clear_screen();
@@ -170,21 +174,21 @@ void vga_enter() {
     vga_plot_pixel(1,1,COLOR_GREEN);
     vga_plot_pixel(2,1,COLOR_GREEN);
     vga_plot_pixel(2,2,COLOR_GREEN);
-	// // draw rectangle
-	// draw_rectangle(150, 10, 100, 50);
-	// // draw some faces
-	// draw_happy_face(10,10);
-	// draw_happy_face(100,100);
-	// draw_happy_face(300,150);
-	// // bounds
-	// vga_plot_pixel(0, 0, 15);
-	// vga_plot_pixel(319, 199, COLOR_PURPLE);
-	// // see some colors
-	// for (int i = 0; i < 15; i++) {
-	// 	for (int j = 0; j < 100; j++) {
-	// 		vga_plot_pixel(i, 50+j, i);
-	// 	}
-	// }
+	// draw rectangle
+	draw_rectangle(150, 10, 100, 50);
+	// draw some faces
+	draw_happy_face(10,10);
+	draw_happy_face(100,100);
+	draw_happy_face(300,150);
+	// bounds
+	vga_plot_pixel(0, 0, 15);
+	vga_plot_pixel(319, 199, COLOR_PURPLE);
+	// see some colors
+	for (int i = 0; i < 15; i++) {
+		for (int j = 0; j < 100; j++) {
+			vga_plot_pixel(i, 50+j, i);
+		}
+	}
 	
 }
 
