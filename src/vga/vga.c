@@ -85,198 +85,202 @@ void vga_enter() {
 	// 0xb8000 to 0xbffff (32K)
 	memcpy(0x0010b8000, 0xb8000, COLS*ROWS*2);
 
-	struct AttributeController ac;
-	get_ac(ac);
-	ac.regPalettes[0] = 0;
-	ac.regPalettes[1] = 1;
-	ac.regPalettes[2] = 2;
-	ac.regPalettes[3] = 3;
-	ac.regPalettes[4] = 4;
-	ac.regPalettes[5] = 5;
-	ac.regPalettes[6] = 6;
-	ac.regPalettes[7] = 7;
-	ac.regPalettes[8] = 8;
-	ac.regPalettes[9] = 9;
-	ac.regPalettes[10] = 10;
-	ac.regPalettes[11] = 11;
-	ac.regPalettes[12] = 12;
-	ac.regPalettes[13] = 13;
-	ac.regPalettes[14] = 14;
-	ac.regPalettes[15] = 15;
-	ac.regAttributeMode = 0x41;
-	ac.regOverscanColor = 0;
-	ac.regColorPlane = 0xF;
-	ac.regHorizPixel = 0;
-	ac.regPixelShift = 0;
-	set_ac(ac);
+	// struct AttributeController ac;
+	// get_ac(ac);
+	// ac.regPalettes[0] = 0;
+	// ac.regPalettes[1] = 1;
+	// ac.regPalettes[2] = 2;
+	// ac.regPalettes[3] = 3;
+	// ac.regPalettes[4] = 4;
+	// ac.regPalettes[5] = 5;
+	// ac.regPalettes[6] = 6;
+	// ac.regPalettes[7] = 7;
+	// ac.regPalettes[8] = 8;
+	// ac.regPalettes[9] = 9;
+	// ac.regPalettes[10] = 10;
+	// ac.regPalettes[11] = 11;
+	// ac.regPalettes[12] = 12;
+	// ac.regPalettes[13] = 13;
+	// ac.regPalettes[14] = 14;
+	// ac.regPalettes[15] = 15;
+	// ac.regAttributeMode = 0x41;
+	// ac.regOverscanColor = 0;
+	// ac.regColorPlane = 0xF;
+	// ac.regHorizPixel = 0;
+	// ac.regPixelShift = 0;
+	// set_ac(ac);
 
 	struct ExternalGeneral ext;
 	get_ext(ext);
-	ext.regMisc = 0x63;
-	set_ext(ext);
+	// ext.regMisc = 0x63;
+	// set_ext(ext);
 
 	struct GraphicsController gc;
 	get_gc(gc);
-	gc.regSetReset = 0;
-	gc.regEnableSetReset = 0;
-	gc.regColorCompare = 0;
-	gc.regDataRotate = 0;
-	gc.regReadMap = 0;
+	// gc.regSetReset = 0;
+	// gc.regEnableSetReset = 0;
+	// gc.regColorCompare = 0;
+	// gc.regDataRotate = 0;
+	// gc.regReadMap = 0;
 	gc.regGraphicsMode = 0x40;
 	gc.regMisc = 0x05;
-	gc.regColorDontCare = 0x0F;
-	gc.regBitMask = 0xFF;
+	// gc.regColorDontCare = 0x0F;
+	// gc.regBitMask = 0xFF;
 	set_gc(gc);
 
 	u8 ioAddressSelect = ext.regMisc & 0b1;
 	struct CathodeRayTubeController crtc;
 	get_crtc(crtc, ioAddressSelect);
-	crtc.regHorizTotal = 0x5F;
-	crtc.regEndHorizDisplay = 0x4F;
+	// crtc.regHorizTotal = 0x5F;
+	// crtc.regEndHorizDisplay = 0x4F;
 	crtc.regStartHorizBlanking = 0x50;
 	crtc.regEndHorizBlanking = 0x82;
-	crtc.regStartHorizRetrace = 0x54;
-	crtc.regEndHorizRetrace = 0x80;
-	crtc.regVertTotal = 0xBF;
-	crtc.regOverflow = 0x1F;
-	crtc.regPresetRowScan = 0x00;
+	// crtc.regStartHorizRetrace = 0x54;
+	// crtc.regEndHorizRetrace = 0x80;
+	// crtc.regVertTotal = 0xBF;
+	// crtc.regOverflow = 0x1F;
+	// crtc.regPresetRowScan = 0x00;
 	crtc.regMaxScanLine = 0x41;
-	crtc.regCursorStart = 0x00;
-	crtc.regCursorEnd = 0x00;
-	crtc.regStartAddressHigh = 0x00;
-	crtc.regStartAddressLow = 0x00;
-	crtc.regCursorLocationHigh = 0x00;
-	crtc.regCursorLocationLow = 0x00;
-	crtc.regVertRetraceStart = 0x9C;
-	crtc.regVertRetraceEnd = 0x0E;
-	crtc.regVertDisplayEnd = 0x8F;
-	crtc.regOffset = 0x28;
-	crtc.regUnderlineLocation = 0x40;
-	crtc.regStartVertBlanking = 0x96;
-	crtc.regEndVertBlanking = 0xB9;
-	crtc.regModeControl = 0xA3;
-	crtc.regLineCompare = 0xFF;
+	// crtc.regCursorStart = 0x00;
+	// crtc.regCursorEnd = 0x00;
+	// crtc.regStartAddressHigh = 0x00;
+	// crtc.regStartAddressLow = 0x00;
+	// crtc.regCursorLocationHigh = 0x00;
+	// crtc.regCursorLocationLow = 0x00;
+	// crtc.regVertRetraceStart = 0x9C;
+	// crtc.regVertRetraceEnd = 0x0E;
+	// crtc.regVertDisplayEnd = 0x8F;
+	// crtc.regOffset = 0x28;
+	// crtc.regUnderlineLocation = 0x40;
+	// crtc.regStartVertBlanking = 0x96;
+	// crtc.regEndVertBlanking = 0xB9;
+	// crtc.regModeControl = 0xA3;
+	// crtc.regLineCompare = 0xFF;
 	set_crtc(crtc, ioAddressSelect);
 
 	struct Sequencer seq;
 	get_seq(seq);
-	seq.regReset = 0x03;
-	seq.regClocking = 0x01;
-	seq.regMapMask = 0x0F;
-	seq.regCharMapSelect = 0x00;
-	seq.regSeqMemoryMode = 0x0E;
-	set_seq(seq);
+	// seq.regReset = 0x03;
+	// seq.regClocking = 0x01;
+	// seq.regMapMask = 0x0F;
+	// seq.regCharMapSelect = 0x00;
+	// seq.regSeqMemoryMode = 0x0E;
+	// set_seq(seq);
 
-	memset(0xb8000, 0, 60);
+	// memset(0xb8000, 0, 60);
 	vga_clear_screen();
 	vga_plot_pixel(0, 0, COLOR_GREEN);
 	vga_plot_pixel(1, 0, COLOR_PURPLE);
     vga_plot_pixel(1,1,COLOR_GREEN);
     vga_plot_pixel(2,1,COLOR_GREEN);
     vga_plot_pixel(2,2,COLOR_GREEN);
-	// draw rectangle
-	draw_rectangle(150, 10, 100, 50);
-	// draw some faces
-	draw_happy_face(10,10);
-	draw_happy_face(100,100);
-	draw_happy_face(300,150);
-	// bounds
-	vga_plot_pixel(0, 0, 15);
-	vga_plot_pixel(319, 199, COLOR_PURPLE);
-	// see some colors
-	for (int i = 0; i < 15; i++) {
-		for (int j = 0; j < 100; j++) {
-			vga_plot_pixel(i, 50+j, i);
-		}
-	}
+	// // draw rectangle
+	// draw_rectangle(150, 10, 100, 50);
+	// // draw some faces
+	// draw_happy_face(10,10);
+	// draw_happy_face(100,100);
+	// draw_happy_face(300,150);
+	// // bounds
+	// vga_plot_pixel(0, 0, 15);
+	// vga_plot_pixel(319, 199, COLOR_PURPLE);
+	// // see some colors
+	// for (int i = 0; i < 15; i++) {
+	// 	for (int j = 0; j < 100; j++) {
+	// 		vga_plot_pixel(i, 50+j, i);
+	// 	}
+	// }
 	
 }
 
 void vga_exit() {
 	if (vga_mode_var == 0) return;
 	// Go back to text mode
-	struct AttributeController ac;
-	get_ac(ac);
-	ac.regPalettes[0] = 0;
-	ac.regPalettes[1] = 0;
-	ac.regPalettes[2] = 0;
-	ac.regPalettes[3] = 0;
-	ac.regPalettes[4] = 0;
-	ac.regPalettes[5] = 0;
-	ac.regPalettes[6] = 0b1100000;
-	ac.regPalettes[7] = 0b1000000;
-	ac.regPalettes[8] = 0b10000;
-	ac.regPalettes[9] = 0;
-	ac.regPalettes[10] = 0b111;
-	ac.regPalettes[11] = 0;
-	ac.regPalettes[12] = 0;
-	ac.regPalettes[13] = 0;
-	ac.regPalettes[14] = 0b111100;
-	ac.regPalettes[15] = 0b1100000;
-	ac.regAttributeMode = 0b10000;
-	ac.regOverscanColor = 0;
-	ac.regColorPlane = 0x10110111;
-	ac.regHorizPixel = 0b1010;
-	ac.regPixelShift = 0b10000;
-	set_ac(ac);
+	// struct AttributeController ac;
+	// get_ac(ac);
+	// ac.regPalettes[0] = 0;
+	// ac.regPalettes[1] = 0;
+	// ac.regPalettes[2] = 0;
+	// ac.regPalettes[3] = 0;
+	// ac.regPalettes[4] = 0;
+	// ac.regPalettes[5] = 0;
+	// ac.regPalettes[6] = 0b1100000;
+	// ac.regPalettes[7] = 0b1000000;
+	// ac.regPalettes[8] = 0b10000;
+	// ac.regPalettes[9] = 0;
+	// ac.regPalettes[10] = 0b111;
+	// ac.regPalettes[11] = 0;
+	// ac.regPalettes[12] = 0;
+	// ac.regPalettes[13] = 0;
+	// ac.regPalettes[14] = 0b111100;
+	// ac.regPalettes[15] = 0b1100000;
+	// ac.regAttributeMode = 0b10000;
+	// ac.regOverscanColor = 0;
+	// ac.regColorPlane = 0x10110111;
+	// ac.regHorizPixel = 0b1010;
+	// ac.regPixelShift = 0b10000;
+	// set_ac(ac);
 
-	struct ExternalGeneral ext;
-	get_ext(ext);
-	ext.regMisc = 0b10000;
-	ext.regFeature = 0;
-	set_ext(ext);
+	// struct ExternalGeneral ext;
+	// get_ext(ext);
+	// ext.regMisc = 0b10000;
+	// ext.regFeature = 0;
+	// set_ext(ext);
 
 	struct GraphicsController gc;
 	get_gc(gc);
-	gc.regSetReset = 0;
-	gc.regEnableSetReset = 0;
-	gc.regColorCompare = 0;
-	gc.regDataRotate = 0;
-	gc.regReadMap = 0b1100;
-	gc.regGraphicsMode = 0;
-	gc.regMisc = 0;
-	gc.regColorDontCare = 0;
-	gc.regBitMask = 0b11010110;
+	// gc.regSetReset = 0;
+	// gc.regEnableSetReset = 0;
+	// gc.regColorCompare = 0;
+	// gc.regDataRotate = 0;
+	// gc.regReadMap = 0b1100;
+	// gc.regGraphicsMode = 0;
+	// gc.regMisc = 0;
+	// gc.regColorDontCare = 0;
+	// gc.regBitMask = 0b11010110;
+
+	gc.regMisc &= 0;
+	gc.regMisc |= 0b10; // bit 1 is RAM enable, set it to 1
+	gc.regMisc |= 0b1100; // set mem map select to 11
 	set_gc(gc);
 
-	u8 ioAddressSelect = ext.regMisc & 0b1;
-	struct CathodeRayTubeController crtc;
-	get_crtc(crtc, ioAddressSelect);
-	crtc.regHorizTotal = 0b1101;
-	crtc.regEndHorizDisplay = 0b10000;
-	crtc.regStartHorizBlanking = 0;
-	crtc.regEndHorizBlanking = 0b100;
-	crtc.regStartHorizRetrace = 0;
-	crtc.regEndHorizRetrace = 0;
-	crtc.regVertTotal = 0;
-	crtc.regOverflow = 0b101;
-	crtc.regPresetRowScan = 0;
-	crtc.regMaxScanLine = 0;
-	crtc.regCursorStart = 0;
-	crtc.regCursorEnd = 0b11010110;
-	crtc.regStartAddressHigh = 0b1101;
-	crtc.regStartAddressLow = 0b10000;
-	crtc.regCursorLocationHigh = 0;
-	crtc.regCursorLocationLow = 0b1101111;
-	crtc.regVertRetraceStart = 0;
-	crtc.regVertRetraceEnd = 0;
-	crtc.regVertDisplayEnd = 0;
-	crtc.regOffset = 0;
-	crtc.regUnderlineLocation = 0;
-	crtc.regStartVertBlanking = 0;
-	crtc.regEndVertBlanking = 0;
-	crtc.regModeControl = 0b1001101;
-	crtc.regLineCompare = 0b111;
-	set_crtc(crtc, ioAddressSelect);
+	// u8 ioAddressSelect = ext.regMisc & 0b1;
+	// struct CathodeRayTubeController crtc;
+	// get_crtc(crtc, ioAddressSelect);
+	// crtc.regHorizTotal = 0b1101;
+	// crtc.regEndHorizDisplay = 0b10000;
+	// crtc.regStartHorizBlanking = 0;
+	// crtc.regEndHorizBlanking = 0b100;
+	// crtc.regStartHorizRetrace = 0;
+	// crtc.regEndHorizRetrace = 0;
+	// crtc.regVertTotal = 0;
+	// crtc.regOverflow = 0b101;
+	// crtc.regPresetRowScan = 0;
+	// crtc.regMaxScanLine = 0;
+	// crtc.regCursorStart = 0;
+	// crtc.regCursorEnd = 0b11010110;
+	// crtc.regStartAddressHigh = 0b1101;
+	// crtc.regStartAddressLow = 0b10000;
+	// crtc.regCursorLocationHigh = 0;
+	// crtc.regCursorLocationLow = 0b1101111;
+	// crtc.regVertRetraceStart = 0;
+	// crtc.regVertRetraceEnd = 0;
+	// crtc.regVertDisplayEnd = 0;
+	// crtc.regOffset = 0;
+	// crtc.regUnderlineLocation = 0;
+	// crtc.regStartVertBlanking = 0;
+	// crtc.regEndVertBlanking = 0;
+	// crtc.regModeControl = 0b1001101;
+	// crtc.regLineCompare = 0b111;
+	// set_crtc(crtc, ioAddressSelect);
 
-	struct Sequencer seq;
-	get_seq(seq);
-	seq.regReset = 0;
-	seq.regClocking = 0b1101111;
-	seq.regMapMask = 0;
-	seq.regCharMapSelect = 0;
-	seq.regSeqMemoryMode = 0;
-	set_seq(seq);
+	// struct Sequencer seq;
+	// get_seq(seq);
+	// seq.regReset = 0;
+	// seq.regClocking = 0b1101111;
+	// seq.regMapMask = 0;
+	// seq.regCharMapSelect = 0;
+	// seq.regSeqMemoryMode = 0;
+	// set_seq(seq);
 
 	// Restore text-mode video memory
 	memcpy(0xb8000, 0x0010b8000, COLS*ROWS*2);
