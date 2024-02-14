@@ -2,6 +2,10 @@
 
 https://en.wikipedia.org/wiki/Mode_13h
 
+## Open BIOS VGA Driver
+
+https://github.com/openbios/openbios/blob/master/drivers/vga_load_regs.c#L408
+
 ## QEMU Card Docs
 
 Per [here](https://www.qemu.org/docs/master/system/i386/pc.html), qemu-system-i386 has a Cirrus CLGD 5446 PCI VGA card.
@@ -9,10 +13,6 @@ Per [here](https://www.qemu.org/docs/master/system/i386/pc.html), qemu-system-i3
 Manual for that card: [here](https://theretroweb.com/chip/documentation/cl-gd5446technical-6456556f945a1573066314.pdf)
 
 See 9.14.3 setting text mode (has code snippet)
-
-## Open BIOS VGA Driver
-
-https://github.com/openbios/openbios/blob/master/drivers/vga_load_regs.c#L408
 
 ## Linux Kernel: `save_vga_text`
 

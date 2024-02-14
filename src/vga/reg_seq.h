@@ -21,6 +21,9 @@ struct Sequencer {
 #define VGA_SEQ_REG_CHAR        0x03 // Character Map Select Register
 #define VGA_SEQ_REG_MEM         0x04 // Sequencer Memory Mode Register
 
+u32 get_reg_seq(u32 index);
+u32 set_reg_seq(u32 index, u32 value);
+
 void set_seq(struct Sequencer config);
 
 void get_seq(struct Sequencer config);
