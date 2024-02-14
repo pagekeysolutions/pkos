@@ -59,3 +59,21 @@ TODO
 TODO
 
 - Short, similar to GC approach
+
+## Determining Register Values
+
+STarting point: OS15 mysterious register code
+
+### Strange Sequencer Behavior
+
+Setting sequencer at all seems to cause crash.
+This makes no sense if sequencer behaves in isolation.
+But it turns out, modifying registers for one subsystem of VGA can affect all the others.
+We need an easy way to look at all the values across the board. VGA rollup.
+
+### Debugging with GDB
+
+(add VGA rollup to be able to check all values at once)
+(set breakpoint, check VGA rollup values)
+(print entire structure, diff in vscode)
+(set the register values for vga_exit)

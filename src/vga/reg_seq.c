@@ -11,8 +11,8 @@ u32 set_reg_seq(u32 index, u32 value) {
 
 void set_seq(struct Sequencer config) {
     set_reg_seq(VGA_SEQ_REG_RESET, config.regReset);
-    set_reg_seq(VGA_SEQ_REG_CLOCKING, config.regClocking);
-    set_reg_seq(VGA_SEQ_REG_MAP, config.regMapMask);
+    // set_reg_seq(VGA_SEQ_REG_CLOCKING, config.regClocking);
+    // set_reg_seq(VGA_SEQ_REG_MAP, config.regMapMask);
     set_reg_seq(VGA_SEQ_REG_CHAR, config.regCharMapSelect);
     set_reg_seq(VGA_SEQ_REG_MEM, config.regSeqMemoryMode);
 }
