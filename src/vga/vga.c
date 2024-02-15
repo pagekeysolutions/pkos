@@ -67,14 +67,6 @@ void vga_enter() {
 	// get_ac(ac);
 	// set_ac(ac);
 
-	// struct ExternalGeneral ext;
-	// get_ext(ext);
-	// set_ext(ext);
-
-	// u8 ioAddressSelect = ext.regMisc & 0b1;
-	// struct CathodeRayTubeController crtc;
-	// get_crtc(crtc, ioAddressSelect);
-	// set_crtc(crtc, ioAddressSelect);
 
 	struct GraphicsController gc;
 	get_gc(gc);
@@ -85,6 +77,45 @@ void vga_enter() {
 	newValue &= 0b11110011;
 	set_reg_gc(VGA_GC_REG_MISC, newValue);
 
+	// this next bit will erase all the text mode fonts:
+	// // Mess w/ CRTC
+	// struct ExternalGeneral ext;
+	// get_ext(ext);
+	// // set_ext(ext);
+
+	// u8 ioAddressSelect = ext.regMisc & 0b1;
+
+	// struct CathodeRayTubeController crtc;
+	// get_crtc(crtc, ioAddressSelect);
+	// set_reg_crtc(VGA_CRTC_REG_MAX_SCAN_LINE, 0x41, ioAddressSelect);
+	// crtc.regHorizTotal = 0x5F;
+	// crtc.regEndHorizDisplay = 0x4F;
+	// crtc.regStartHorizBlanking = 0x50;
+	// crtc.regEndHorizBlanking = 0x82;
+	// crtc.regStartHorizRetrace = 0x54;
+	// crtc.regEndHorizRetrace = 0x80;
+	// crtc.regVertTotal = 0xBF;
+	// crtc.regOverflow = 0x1F;
+	// crtc.regPresetRowScan = 0x00;
+	// crtc.regMaxScanLine = 0x41;
+	// crtc.regCursorStart = 0x00;
+	// crtc.regCursorEnd = 0x00;
+	// crtc.regStartAddressHigh = 0x00;
+	// crtc.regStartAddressLow = 0x00;
+	// crtc.regCursorLocationHigh = 0x00;
+	// crtc.regCursorLocationLow = 0x00;
+	// crtc.regVertRetraceStart = 0x9C;
+	// crtc.regVertRetraceEnd = 0x0E;
+	// crtc.regVertDisplayEnd = 0x8F;
+	// crtc.regOffset = 0x28;
+	// crtc.regUnderlineLocation = 0x40;
+	// crtc.regStartVertBlanking = 0x96;
+	// crtc.regEndVertBlanking = 0xB9;
+	// crtc.regModeControl = 0xA3;
+	// crtc.regLineCompare = 0xFF;
+	// set_crtc(crtc, ioAddressSelect);
+
+	// Work with sequencer
 	struct Sequencer seq;
 	get_seq(seq);
 	// Synchronous stop sequencer
@@ -129,6 +160,19 @@ void vga_enter() {
 void vga_exit() {
 	if (vga_mode_var == 0) return;
 
+	// this next bit will erase all the text mode fonts:
+	// // Mess w/ CRTC
+	// struct ExternalGeneral ext;
+	// get_ext(ext);
+	// // set_ext(ext);
+
+	// u8 ioAddressSelect = ext.regMisc & 0b1;
+
+	// struct CathodeRayTubeController crtc;
+	// get_crtc(crtc, ioAddressSelect);
+	// set_reg_crtc(VGA_CRTC_REG_MAX_SCAN_LINE, 0x00, ioAddressSelect);
+
+	// Put sequencer back
 	struct Sequencer seq;
 	get_seq(seq);
 	// Synchronous stop sequencer

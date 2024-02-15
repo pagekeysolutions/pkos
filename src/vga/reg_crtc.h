@@ -63,6 +63,9 @@ struct CathodeRayTubeController {
 #define VGA_CRTC_REG_MODE_CONTROL           0x17
 #define VGA_CRTC_REG_LINE_COMPARE           0x18
 
+u32 get_reg_crtc(u32 index, u8 ioAddressSelect);
+u32 set_reg_crtc(u32 index, u32 value, u8 ioAddressSelect);
+
 void set_crtc(struct CathodeRayTubeController config, u8 ioAddressSelect);
 
 void get_crtc(struct CathodeRayTubeController config, u8 ioAddressSelect);
