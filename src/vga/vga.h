@@ -5,6 +5,8 @@
 
 // Advice for accessing VGA registers: http://www.osdever.net/FreeVGA/vga/vgareg.htm
 
+// VGA Text Mode Info: http://www.osdever.net/FreeVGA/vga/vgatext.htm
+
 #define VGA_ADDRESS 0xB8000
 #define PLANE0_ADDRESS 0xA0000
 #define PLANE1_ADDRESS 0xA0000
@@ -15,6 +17,7 @@ u32 get_reg(u32 address, u32 data, u32 index);
 u32 set_reg(u32 address, u32 data, u32 index, u32 value);
 
 void vga_info();
+void vga_font();
 void vga_enter();
 void vga_exit();
 

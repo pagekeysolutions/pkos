@@ -54,6 +54,21 @@ void vga_info() {
 	print_vga(vga);
 }
 
+void vga_font() {
+	u8 curFont = get_reg_seq(VGA_SEQ_REG_CHAR);
+	u8 charSetA = (curFont & 0b1100) >> 1;
+	charSetA &= (curFont >> 4);
+	print("curfont: 0b");
+	println(itoab(charSetA));
+	set_reg_seq(VGA_SEQ_REG_CHAR, 0b0001);
+
+	println("abcdefghijklmnopqrstuvwxyz");
+	println("ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+	println("1234567890!?-");
+	println("hello world");
+	// change font for character map A
+}
+
 void vga_enter() {
 	if (vga_mode_var == 1) return;
 	vga_mode_var = 1;
@@ -78,16 +93,16 @@ void vga_enter() {
 	set_reg_gc(VGA_GC_REG_MISC, newValue);
 
 	// this next bit will erase all the text mode fonts:
-	// // Mess w/ CRTC
-	// struct ExternalGeneral ext;
-	// get_ext(ext);
-	// // set_ext(ext);
+	// Mess w/ CRTC
+	struct ExternalGeneral ext;
+	get_ext(ext);
+	// set_ext(ext);
 
-	// u8 ioAddressSelect = ext.regMisc & 0b1;
+	u8 ioAddressSelect = ext.regMisc & 0b1;
 
-	// struct CathodeRayTubeController crtc;
-	// get_crtc(crtc, ioAddressSelect);
-	// set_reg_crtc(VGA_CRTC_REG_MAX_SCAN_LINE, 0x41, ioAddressSelect);
+	struct CathodeRayTubeController crtc;
+	get_crtc(crtc, ioAddressSelect);
+	set_reg_crtc(VGA_CRTC_REG_MAX_SCAN_LINE, 0x41, ioAddressSelect);
 	// crtc.regHorizTotal = 0x5F;
 	// crtc.regEndHorizDisplay = 0x4F;
 	// crtc.regStartHorizBlanking = 0x50;
