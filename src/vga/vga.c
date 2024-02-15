@@ -76,21 +76,28 @@ void vga_enter() {
 	// get_crtc(crtc, ioAddressSelect);
 	// set_crtc(crtc, ioAddressSelect);
 
-	struct Sequencer seq;
-	get_seq(seq);
-	// Synchronous stop sequencer
-	set_reg_seq(VGA_SEQ_REG_RESET, 0x1);
-	// Turn on the Screen Disable bit
-	set_reg_seq(VGA_SEQ_REG_CLOCKING, seq.regClocking | (1 << 5));
-	// Turn off the sync reset bit
-	set_reg_seq(VGA_SEQ_REG_RESET, 0x3);
+	// struct Sequencer seq;
+	// get_seq(seq);
+	// // Synchronous stop sequencer
+	// set_reg_seq(VGA_SEQ_REG_RESET, 0x1);
+	// // Turn on the Screen Disable bit
+	// set_reg_seq(VGA_SEQ_REG_CLOCKING, seq.regClocking | (1 << 5));
+	// // Turn off the sync reset bit
+	// set_reg_seq(VGA_SEQ_REG_RESET, 0x3);
 
-	// Set alphanumeric disable to 1 (turn off text mode)
 	struct GraphicsController gc;
 	get_gc(gc);
-	set_reg_gc(VGA_GC_REG_MISC, gc.regMisc | 1);
+	u8 newValue = gc.regMisc;
+	// Set alphanumeric disable to 1 (turn off text mode)
+	newValue |= 1;
+	// Select mem map 0xa0000 (value 00)
+	newValue &= 0b11110011;
+	set_reg_gc(VGA_GC_REG_MISC, newValue);
 
-	// memset(0xb8000, 0, 60);
+	memset(0xa0000, 0, 400);
+
+	vga_plot_pixel(0,0, COLOR_GREEN);
+	vga_plot_pixel(2,2, COLOR_GREEN);
 	// vga_clear_screen();
 	// vga_plot_pixel(0, 0, COLOR_GREEN);
 	// vga_plot_pixel(1, 0, COLOR_PURPLE);
@@ -118,20 +125,26 @@ void vga_enter() {
 void vga_exit() {
 	if (vga_mode_var == 0) return;
 
-	// Go back to text mode
-	struct Sequencer seq;
-	get_seq(seq);
-	// Synchronous stop sequencer
-	set_reg_seq(VGA_SEQ_REG_RESET, 0x1);
-	// Turn on the Screen Disable bit
-	set_reg_seq(VGA_SEQ_REG_CLOCKING, seq.regClocking | (1 << 5));
-	// Turn off the sync reset bit
-	set_reg_seq(VGA_SEQ_REG_RESET, 0x3);
+	// // Go back to text mode
+	// struct Sequencer seq;
+	// get_seq(seq);
+	// // Synchronous stop sequencer
+	// set_reg_seq(VGA_SEQ_REG_RESET, 0x1);
+	// // Turn off the Screen Disable bit
+	// set_reg_seq(VGA_SEQ_REG_CLOCKING, seq.regClocking & (0b11011111));
+	// // Turn off the sync reset bit
+	// set_reg_seq(VGA_SEQ_REG_RESET, 0x3);
 
-	// Set alphanumeric disable to 0 (turn on text mode)
 	struct GraphicsController gc;
+	u8 newValue = gc.regMisc;
+	// Set alphanumeric disable to 0 (turn on text mode)
+	newValue &= 0;
+	// Set RAM enable to 1
+	newValue |= 0b10;
+	// Select mem map 0xb8000
+	newValue |= 0b1100;
 	get_gc(gc);
-	set_reg_gc(VGA_GC_REG_MISC, gc.regMisc & 1);
+	set_reg_gc(VGA_GC_REG_MISC, newValue);
 
 	// struct AttributeController ac;
 	// get_ac(ac);
@@ -204,10 +217,4 @@ void vga_plot_pixel(int x, int y, unsigned short color) {
     unsigned short offset = x + 320 * y;
 	unsigned char *PLANE0 = (unsigned char*) PLANE0_ADDRESS;
     PLANE0[offset] = color;
-	unsigned char *PLANE1 = (unsigned char*) PLANE1_ADDRESS;
-    PLANE1[offset] = color;
-	unsigned char *PLANE2 = (unsigned char*) PLANE2_ADDRESS;
-    PLANE2[offset] = color;
-	unsigned char *PLANE3 = (unsigned char*) PLANE3_ADDRESS;
-    PLANE3[offset] = color;
 }
