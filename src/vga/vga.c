@@ -73,7 +73,7 @@ void vga_font() {
 	// set_reg_seq(VGA_SEQ_REG_CHAR, 0b10000);
 
 	println("abcdefghijklmnopqrstuvwxyz");
-	println("ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+	println("?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[]");
 	println("1234567890!?-*");
 	println("hello world");
 	// change font for character map A
@@ -82,7 +82,7 @@ void vga_font() {
 void vga_enter() {
 	if (vga_mode_var == 1) return;
 	vga_mode_var = 1;
-    println("Attempting to switch modes...");
+    println("Attempting to switch modes... ascii: ?@ABCDEF");
 
 	// Save video memory somewhere else
 	// 0xb8000 to 0xbffff (32K)
@@ -156,7 +156,12 @@ void vga_enter() {
 	// Turn off the sync reset bit
 	set_reg_seq(VGA_SEQ_REG_RESET, 0x3);
 
-	memset(0xb8000+0x2080, 0x8888, 0x80);
+	// '@'
+	memset(0xb8000+0x2000, 0xF0, 0x80);
+	// 'A'
+	memset(0xb8000+0x2080, 0xF0, 0x80);
+	// 'B'
+	memset(0xb8000+0x2080 + 0x80, 0xF0, 0x80);
 
 	vga_plot_pixel(0,0, COLOR_GREEN);
 	vga_plot_pixel(2,2, COLOR_GREEN);
