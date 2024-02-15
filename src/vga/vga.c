@@ -76,15 +76,6 @@ void vga_enter() {
 	// get_crtc(crtc, ioAddressSelect);
 	// set_crtc(crtc, ioAddressSelect);
 
-	// struct Sequencer seq;
-	// get_seq(seq);
-	// // Synchronous stop sequencer
-	// set_reg_seq(VGA_SEQ_REG_RESET, 0x1);
-	// // Turn on the Screen Disable bit
-	// set_reg_seq(VGA_SEQ_REG_CLOCKING, seq.regClocking | (1 << 5));
-	// // Turn off the sync reset bit
-	// set_reg_seq(VGA_SEQ_REG_RESET, 0x3);
-
 	struct GraphicsController gc;
 	get_gc(gc);
 	u8 newValue = gc.regMisc;
@@ -93,6 +84,19 @@ void vga_enter() {
 	// Select mem map 0xa0000 (value 00)
 	newValue &= 0b11110011;
 	set_reg_gc(VGA_GC_REG_MISC, newValue);
+
+	struct Sequencer seq;
+	get_seq(seq);
+	// Synchronous stop sequencer
+	set_reg_seq(VGA_SEQ_REG_RESET, 0x1);
+	// // Turn on the Screen Disable bit
+	// set_reg_seq(VGA_SEQ_REG_CLOCKING, seq.regClocking | (1 << 5));
+	// Turn on extended mem, odd/even, chain 4
+	set_reg_seq(VGA_SEQ_REG_MEM, 0xE);
+	// Set map mask
+	set_reg_seq(VGA_SEQ_REG_MAP, 0xF);
+	// Turn off the sync reset bit
+	set_reg_seq(VGA_SEQ_REG_RESET, 0x3);
 
 	memset(0xa0000, 0, 400);
 
@@ -125,15 +129,16 @@ void vga_enter() {
 void vga_exit() {
 	if (vga_mode_var == 0) return;
 
-	// // Go back to text mode
-	// struct Sequencer seq;
-	// get_seq(seq);
-	// // Synchronous stop sequencer
-	// set_reg_seq(VGA_SEQ_REG_RESET, 0x1);
-	// // Turn off the Screen Disable bit
-	// set_reg_seq(VGA_SEQ_REG_CLOCKING, seq.regClocking & (0b11011111));
-	// // Turn off the sync reset bit
-	// set_reg_seq(VGA_SEQ_REG_RESET, 0x3);
+	struct Sequencer seq;
+	get_seq(seq);
+	// Synchronous stop sequencer
+	set_reg_seq(VGA_SEQ_REG_RESET, 0x1);
+	// // Turn on the Screen Disable bit
+	// set_reg_seq(VGA_SEQ_REG_CLOCKING, seq.regClocking | (1 << 5));
+	// Turn off extended mem, odd/even, chain 4
+	set_reg_seq(VGA_SEQ_REG_MEM, 0x0);
+	// Turn off the sync reset bit
+	set_reg_seq(VGA_SEQ_REG_RESET, 0x3);
 
 	struct GraphicsController gc;
 	u8 newValue = gc.regMisc;
