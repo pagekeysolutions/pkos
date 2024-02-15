@@ -55,16 +55,26 @@ void vga_info() {
 }
 
 void vga_font() {
+	// Copy font 0 to font 1
+	memcpy(PLANE2_ADDRESS + 0x4000, PLANE2_ADDRESS, 0x1000);
+	memcpy(PLANE2_ADDRESS + 0x8000, PLANE2_ADDRESS, 256);
+	memcpy(PLANE2_ADDRESS + 0xC000, PLANE2_ADDRESS, 256);
+	memcpy(PLANE2_ADDRESS + 0x2000, PLANE2_ADDRESS, 256);
+	memcpy(PLANE2_ADDRESS + 0x6000, PLANE2_ADDRESS, 256);
+	memcpy(PLANE2_ADDRESS + 0xA000, PLANE2_ADDRESS, 256);
+	memcpy(PLANE2_ADDRESS + 0xE000, PLANE2_ADDRESS, 256);
+	// Change font
 	u8 curFont = get_reg_seq(VGA_SEQ_REG_CHAR);
-	u8 charSetA = (curFont & 0b1100) >> 1;
-	charSetA &= (curFont >> 4);
+	u8 primaryBit0 = (curFont >> 4) & 1;
+	u8 primaryBits1_2 = curFont & 0b11;
+	u8 charSetA = (primaryBits1_2 << 1) | primaryBit0;
 	print("curfont: 0b");
 	println(itoab(charSetA));
-	set_reg_seq(VGA_SEQ_REG_CHAR, 0b0001);
+	// set_reg_seq(VGA_SEQ_REG_CHAR, 0b10000);
 
 	println("abcdefghijklmnopqrstuvwxyz");
 	println("ABCDEFGHIJKLMNOPQRSTUVWXYZ");
-	println("1234567890!?-");
+	println("1234567890!?-*");
 	println("hello world");
 	// change font for character map A
 }
@@ -76,7 +86,7 @@ void vga_enter() {
 
 	// Save video memory somewhere else
 	// 0xb8000 to 0xbffff (32K)
-	memcpy(0x0010b8000, 0xb8000, COLS*ROWS*2);
+	memcpy(0x0010b8000, 0xb8000, 0x3FFF);
 
 	// struct AttributeController ac;
 	// get_ac(ac);
@@ -90,6 +100,8 @@ void vga_enter() {
 	newValue |= 1;
 	// Select mem map 0xa0000 (value 00)
 	newValue &= 0b11110011;
+	// actually set it to 11 (0xb8000)
+	newValue |= 0b1100;
 	set_reg_gc(VGA_GC_REG_MISC, newValue);
 
 	// this next bit will erase all the text mode fonts:
@@ -102,7 +114,7 @@ void vga_enter() {
 
 	struct CathodeRayTubeController crtc;
 	get_crtc(crtc, ioAddressSelect);
-	set_reg_crtc(VGA_CRTC_REG_MAX_SCAN_LINE, 0x41, ioAddressSelect);
+	// set_reg_crtc(VGA_CRTC_REG_MAX_SCAN_LINE, 0x41, ioAddressSelect);
 	// crtc.regHorizTotal = 0x5F;
 	// crtc.regEndHorizDisplay = 0x4F;
 	// crtc.regStartHorizBlanking = 0x50;
@@ -144,7 +156,7 @@ void vga_enter() {
 	// Turn off the sync reset bit
 	set_reg_seq(VGA_SEQ_REG_RESET, 0x3);
 
-	memset(0xa0000, 0, 400);
+	memset(0xb8000, 0xffff, 0x3FFF);
 
 	vga_plot_pixel(0,0, COLOR_GREEN);
 	vga_plot_pixel(2,2, COLOR_GREEN);
@@ -233,7 +245,7 @@ void vga_exit() {
 	// set_seq(seq);
 
 	// Restore text-mode video memory
-	memcpy(0xb8000, 0x0010b8000, COLS*ROWS*2);
+	memcpy(0xb8000, 0x0010b8000, 0x3FFF);
 
 	vga_mode_var = 0;
 
@@ -279,6 +291,6 @@ void vga_clear_screen() {
 
 void vga_plot_pixel(int x, int y, unsigned short color) {
     unsigned short offset = x + 320 * y;
-	unsigned char *PLANE0 = (unsigned char*) PLANE0_ADDRESS;
-    PLANE0[offset] = color;
+	unsigned char *PLANE2 = (unsigned char*) PLANE2_ADDRESS;
+    PLANE2[offset] = color;
 }
