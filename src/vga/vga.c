@@ -56,13 +56,13 @@ void vga_info() {
 
 void vga_font() {
 	// Copy font 0 to font 1
-	memcpy(PLANE2_ADDRESS + 0x4000, PLANE2_ADDRESS, 0x1000);
-	memcpy(PLANE2_ADDRESS + 0x8000, PLANE2_ADDRESS, 256);
-	memcpy(PLANE2_ADDRESS + 0xC000, PLANE2_ADDRESS, 256);
-	memcpy(PLANE2_ADDRESS + 0x2000, PLANE2_ADDRESS, 256);
-	memcpy(PLANE2_ADDRESS + 0x6000, PLANE2_ADDRESS, 256);
-	memcpy(PLANE2_ADDRESS + 0xA000, PLANE2_ADDRESS, 256);
-	memcpy(PLANE2_ADDRESS + 0xE000, PLANE2_ADDRESS, 256);
+	// memcpy(PLANE2_ADDRESS + 0x4000, PLANE2_ADDRESS, 0x1000);
+	// memcpy(PLANE2_ADDRESS + 0x8000, PLANE2_ADDRESS, 256);
+	// memcpy(PLANE2_ADDRESS + 0xC000, PLANE2_ADDRESS, 256);
+	// memcpy(PLANE2_ADDRESS + 0x2000, PLANE2_ADDRESS, 256);
+	// memcpy(PLANE2_ADDRESS + 0x6000, PLANE2_ADDRESS, 256);
+	// memcpy(PLANE2_ADDRESS + 0xA000, PLANE2_ADDRESS, 256);
+	// memcpy(PLANE2_ADDRESS + 0xE000, PLANE2_ADDRESS, 256);
 	// Change font
 	u8 curFont = get_reg_seq(VGA_SEQ_REG_CHAR);
 	u8 primaryBit0 = (curFont >> 4) & 1;
@@ -156,7 +156,7 @@ void vga_enter() {
 	// Turn off the sync reset bit
 	set_reg_seq(VGA_SEQ_REG_RESET, 0x3);
 
-	memset(0xb8000, 0xffff, 0x3FFF);
+	memset(0xb8000+0x2080, 0x8888, 0x80);
 
 	vga_plot_pixel(0,0, COLOR_GREEN);
 	vga_plot_pixel(2,2, COLOR_GREEN);
