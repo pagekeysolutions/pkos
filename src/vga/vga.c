@@ -162,6 +162,20 @@ void vga_enter() {
 	memset(0xb8000+0x2080, 0xF0, 0x80);
 	// 'B'
 	memset(0xb8000+0x2080 + 0x80, 0xF0, 0x80);
+	// 'C' - let's set a custom character value
+	unsigned char *CHAR_C_ADDR = (unsigned char*) 0xb8000 + 0x2000 + 0x80*3;
+    CHAR_C_ADDR[0] = 0xab;
+    CHAR_C_ADDR[1] = 0xcd;
+    CHAR_C_ADDR[2] = 0xef;
+    CHAR_C_ADDR[3] = 0xff;
+    CHAR_C_ADDR[4] = 0xff;
+    CHAR_C_ADDR[5] = 0xff;
+    CHAR_C_ADDR[6] = 0xff;
+    CHAR_C_ADDR[7] = 0x00;
+    CHAR_C_ADDR[8] = 0x00;
+    CHAR_C_ADDR[9] = 0x00;
+    CHAR_C_ADDR[10] = 0x00;
+
 
 	vga_plot_pixel(0,0, COLOR_GREEN);
 	vga_plot_pixel(2,2, COLOR_GREEN);
