@@ -86,7 +86,7 @@ void vga_enter() {
 
 	// Save video memory somewhere else
 	// 0xb8000 to 0xbffff (32K)
-	memcpy(0x0010b8000, 0xb8000, 0x3FFF);
+	memcpy(0x0001b8000, 0xb8000, 0x3FFF);
 
 	// struct AttributeController ac;
 	// get_ac(ac);
@@ -156,29 +156,55 @@ void vga_enter() {
 	// Turn off the sync reset bit
 	set_reg_seq(VGA_SEQ_REG_RESET, 0x3);
 
-	// '@'
-	memset(0xb8000+0x2000, 0xF0, 0x80);
-	// 'A'
-	memset(0xb8000+0x2080, 0xF0, 0x80);
-	// 'B'
-	memset(0xb8000+0x2080 + 0x80, 0xF0, 0x80);
-	// 'C' - let's set a custom character value
-	unsigned char *CHAR_C_ADDR = (unsigned char*) 0xb8000 + 0x2000 + 0x80*3;
-    CHAR_C_ADDR[0] = 0xab;
-    CHAR_C_ADDR[1] = 0xcd;
-    CHAR_C_ADDR[2] = 0xef;
-    CHAR_C_ADDR[3] = 0xff;
-    CHAR_C_ADDR[4] = 0xff;
-    CHAR_C_ADDR[5] = 0xff;
-    CHAR_C_ADDR[6] = 0xff;
-    CHAR_C_ADDR[7] = 0x00;
-    CHAR_C_ADDR[8] = 0x00;
-    CHAR_C_ADDR[9] = 0x00;
-    CHAR_C_ADDR[10] = 0x00;
-
-
+	// memset(0xb8000, 0x0, 0x2000 + (0x80*6));
 	vga_plot_pixel(0,0, COLOR_GREEN);
 	vga_plot_pixel(2,2, COLOR_GREEN);
+
+	// '@'
+	// memset(0xb8000+0x2000, 0xF0, 0x80);
+	// 'A'
+	memset(0xb8000+0x2080, 0xFF, 0x80);
+	// 'B'
+	// memset(0xb8000+0x2080 + 0x80, 0xF0, 0x80);
+	// 'C' - let's set a custom character value
+	// memset(0xb8000+0x2080 + 0x80*2, 0xFF, 128/8);
+	unsigned char LetterA[16] = {
+		0b00000000,  // byte 0
+		0b00000000,  // byte 1
+		0b00000000,  // byte 2
+		0b00010000,  // byte 3
+		0b00111000,  // byte 4
+		0b01101100,  // byte 5
+		0b11000110,  // byte 6
+		0b11000110,  // byte 7
+		0b11111110,  // byte 8
+		0b11000110,  // byte 9
+		0b11000110,  // byte 10
+		0b11000110,  // byte 11
+		0b11000110,  // byte 12
+		0b00000000,  // byte 13
+		0b00000000,  // byte 14
+		0b00000000   // byte 15
+	};
+	unsigned char *CHAR_C_ADDR = (unsigned char*) 0xba182;
+	for (u8 i = 0; i < 16; i++) {
+		CHAR_C_ADDR[i*4] = LetterA[i];
+		// CHAR_C_ADDR[i*4+1] = 0x00;
+		// CHAR_C_ADDR[i*4+2] = 0x00;
+		// CHAR_C_ADDR[i*4+3] = 0x00;
+	}
+    // CHAR_C_ADDR[7] = 0b11000110;
+    // CHAR_C_ADDR[8] = 0b11111110;
+    // CHAR_C_ADDR[9] = 0b11000110;
+    // CHAR_C_ADDR[10] = 0b11000110;
+    // CHAR_C_ADDR[11] = 0b11000110;
+    // CHAR_C_ADDR[12] = 0b11000110;
+    // CHAR_C_ADDR[13] = 0b00000000;
+    // CHAR_C_ADDR[14] = 0b00000000;
+    // CHAR_C_ADDR[15] = 0b00000000;
+	// 'D'
+	// memset(0xb8000+0x2080 + 0x80*4, 0xF0, 0x80);
+
 	// vga_clear_screen();
 	// vga_plot_pixel(0, 0, COLOR_GREEN);
 	// vga_plot_pixel(1, 0, COLOR_PURPLE);
@@ -264,7 +290,7 @@ void vga_exit() {
 	// set_seq(seq);
 
 	// Restore text-mode video memory
-	memcpy(0xb8000, 0x0010b8000, 0x3FFF);
+	memcpy(0xb8000, 0x0001b8000, 0x3FFF);
 
 	vga_mode_var = 0;
 
