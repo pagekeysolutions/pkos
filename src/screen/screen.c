@@ -48,6 +48,7 @@ void printchar_at(char c, int row, int col) {
 	// OFFSET = (ROW * 80) + COL
 	char* offset = (char*) (VIDMEM + 2*((row * COLS) + col));
 	*offset = c;
+	*(offset+1) = 0x06;
 }
 
 void clear_screen() {
@@ -66,7 +67,7 @@ void newline() {
 
 void backspace() {
     if (cursor_col > PROMPT_LENGTH) {
-        print_char_with_asm(' ', cursor_row, --cursor_col);
+        printchar_at(' ', cursor_row, --cursor_col);
     }
 }
 
@@ -82,9 +83,9 @@ void print_message() {
 	for (i = 0; i < COLS; i++) {
 		for (j = 0; j < ROWS; j++) {
 			if (j < 4) {
-				print_char_with_asm('*',j,i);
+				printchar_at('*',j,i);
 			} else {
-				print_char_with_asm(' ',j,i);
+				printchar_at(' ',j,i);
 			}
 		}
 	}

@@ -55,14 +55,6 @@ void vga_info() {
 }
 
 void vga_font() {
-	// Copy font 0 to font 1
-	// memcpy(PLANE2_ADDRESS + 0x4000, PLANE2_ADDRESS, 0x1000);
-	// memcpy(PLANE2_ADDRESS + 0x8000, PLANE2_ADDRESS, 256);
-	// memcpy(PLANE2_ADDRESS + 0xC000, PLANE2_ADDRESS, 256);
-	// memcpy(PLANE2_ADDRESS + 0x2000, PLANE2_ADDRESS, 256);
-	// memcpy(PLANE2_ADDRESS + 0x6000, PLANE2_ADDRESS, 256);
-	// memcpy(PLANE2_ADDRESS + 0xA000, PLANE2_ADDRESS, 256);
-	// memcpy(PLANE2_ADDRESS + 0xE000, PLANE2_ADDRESS, 256);
 	// Change font
 	u8 curFont = get_reg_seq(VGA_SEQ_REG_CHAR);
 	u8 primaryBit0 = (curFont >> 4) & 1;
@@ -156,14 +148,14 @@ void vga_enter() {
 	// Turn off the sync reset bit
 	set_reg_seq(VGA_SEQ_REG_RESET, 0x3);
 
-	// memset(0xb8000, 0x0, 0x2000 + (0x80*6));
+	memset(0xb8000, 0x0, 0x2000);
 	vga_plot_pixel(0,0, COLOR_GREEN);
 	vga_plot_pixel(2,2, COLOR_GREEN);
 
 	// '@'
 	// memset(0xb8000+0x2000, 0xF0, 0x80);
 	// 'A'
-	memset(0xb8000+0x2080, 0xFF, 0x80);
+	// memset(0xb8000+0x2080, 0xFF, 0x80);
 	// 'B'
 	// memset(0xb8000+0x2080 + 0x80, 0xF0, 0x80);
 	// 'C' - let's set a custom character value
@@ -186,13 +178,13 @@ void vga_enter() {
 		0b00000000,  // byte 14
 		0b00000000   // byte 15
 	};
-	unsigned char *CHAR_C_ADDR = (unsigned char*) 0xba182;
-	for (u8 i = 0; i < 16; i++) {
-		CHAR_C_ADDR[i*4] = LetterA[i];
-		// CHAR_C_ADDR[i*4+1] = 0x00;
-		// CHAR_C_ADDR[i*4+2] = 0x00;
-		// CHAR_C_ADDR[i*4+3] = 0x00;
-	}
+	// unsigned char *CHAR_C_ADDR = (unsigned char*) 0xba182;
+	// for (u8 i = 0; i < 16; i++) {
+	// 	CHAR_C_ADDR[i*4] = LetterA[i];
+	// 	// CHAR_C_ADDR[i*4+1] = 0x00;
+	// 	// CHAR_C_ADDR[i*4+2] = 0x00;
+	// 	// CHAR_C_ADDR[i*4+3] = 0x00;
+	// }
     // CHAR_C_ADDR[7] = 0b11000110;
     // CHAR_C_ADDR[8] = 0b11111110;
     // CHAR_C_ADDR[9] = 0b11000110;
@@ -336,6 +328,6 @@ void vga_clear_screen() {
 
 void vga_plot_pixel(int x, int y, unsigned short color) {
     unsigned short offset = x + 320 * y;
-	unsigned char *PLANE2 = (unsigned char*) PLANE2_ADDRESS;
+	unsigned char *PLANE2 = (unsigned char*) VGA_ADDRESS;
     PLANE2[offset] = color;
 }

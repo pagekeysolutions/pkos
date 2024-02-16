@@ -8,10 +8,10 @@
 // VGA Text Mode Info: http://www.osdever.net/FreeVGA/vga/vgatext.htm
 
 #define VGA_ADDRESS 0xB8000
-#define PLANE0_ADDRESS 0xA0000
-#define PLANE1_ADDRESS 0xA0000
-#define PLANE2_ADDRESS 0xB0000
-#define PLANE3_ADDRESS 0xB8000
+#define REGION0 0xA0000
+#define REGION1 0xA0000
+#define REGION2 0xB0000
+#define REGION3 0xB8000
 
 u32 get_reg(u32 address, u32 data, u32 index);
 u32 set_reg(u32 address, u32 data, u32 index, u32 value);
