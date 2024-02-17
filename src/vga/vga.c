@@ -142,9 +142,12 @@ void vga_enter() {
 	set_crtc(crtc, ioAddressSelect);
 
 
-	memset(0xA0000, 0x00, 0xFFFF);
+	memset(0xA0000, 0x0000, 0xFFFF);
+	memset(0xB0000, 0x0000, 0xFFFF);
 
+	draw_happy_face(0,0);
 
+	draw_happy_face(150,150);
 
 }
 
@@ -259,6 +262,6 @@ void vga_clear_screen() {
 
 void vga_plot_pixel(int x, int y, unsigned short color) {
     unsigned short offset = x + 320 * y;
-	unsigned char *PLANE2 = (unsigned char*) VGA_ADDRESS;
+	unsigned char *PLANE2 = (unsigned char*) 0xA0000;
     PLANE2[offset] = color;
 }
