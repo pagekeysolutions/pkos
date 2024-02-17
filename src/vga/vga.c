@@ -72,9 +72,12 @@ void vga_font() {
 }
 
 void vga_enter() {
+	// Using mode 13h (320x200 linear 256-color mode) from:
+	// https://wiki.osdev.org/VGA_Hardware#List_of_register_settings
+
 	if (vga_mode_var == 1) return;
 	vga_mode_var = 1;
-    println("Attempting to switch modes... ascii: ?@ABCDEF");
+    println("Attempting to switch modes...");
 
 	// Save video memory somewhere else
 	// 0xb8000 to 0xbffff (32K)
@@ -82,204 +85,132 @@ void vga_enter() {
 
 	struct AttributeController ac;
 	get_ac(ac);
+	ac.regAttributeMode = 0x41;
+	ac.regOverscanColor = 0x00;
+	ac.regColorPlane = 0x0F;
+	ac.regHorizPixel = 0x00;
+	ac.regPixelShift = 0x00;
 	set_ac(ac);
-
-
-	struct GraphicsController gc;
-	get_gc(gc);
-	u8 newValue = gc.regMisc;
-	// Set alphanumeric disable to 1 (turn off text mode)
-	newValue |= 1;
-	// Select mem map 0xa0000 (value 00)
-	newValue &= 0b11110011;
-	// actually set it to 11 (0xb8000)
-	newValue |= 0b1100;
-	set_reg_gc(VGA_GC_REG_MISC, newValue);
 
 	// this next bit will erase all the text mode fonts:
 	// Mess w/ CRTC
 	struct ExternalGeneral ext;
 	get_ext(ext);
-	// set_ext(ext);
+	ext.regMisc = 0x63;
+	set_ext(ext);
 
-	u8 ioAddressSelect = ext.regMisc & 0b1;
+	// Work with sequencer
+	struct Sequencer seq;
+	get_seq(seq);
+	set_reg_seq(VGA_SEQ_REG_CLOCKING, 0x01);
+	set_reg_seq(VGA_SEQ_REG_CHAR, 0x00);
+	set_reg_seq(VGA_SEQ_REG_MEM, 0x0E);
 
+	struct GraphicsController gc;
+	get_gc(gc);
+	set_reg_gc(VGA_GC_REG_GRAPHICSMODE, 0x40);
+	set_reg_gc(VGA_GC_REG_MISC, 0x05);
+
+	u8 ioAddressSelect = 1; // assume color mode. // ext.regMisc & 0b1;
 	struct CathodeRayTubeController crtc;
 	get_crtc(crtc, ioAddressSelect);
-	// set_reg_crtc(VGA_CRTC_REG_MAX_SCAN_LINE, 0x41, ioAddressSelect);
-	// crtc.regHorizTotal = 0x5F;
-	// crtc.regEndHorizDisplay = 0x4F;
-	// crtc.regStartHorizBlanking = 0x50;
-	// crtc.regEndHorizBlanking = 0x82;
-	// crtc.regStartHorizRetrace = 0x54;
-	// crtc.regEndHorizRetrace = 0x80;
-	// crtc.regVertTotal = 0xBF;
-	// crtc.regOverflow = 0x1F;
-	// crtc.regPresetRowScan = 0x00;
-	// crtc.regMaxScanLine = 0x41;
+	crtc.regHorizTotal = 0x5F;
+	crtc.regEndHorizDisplay = 0x4F;
+	crtc.regStartHorizBlanking = 0x50;
+	crtc.regEndHorizBlanking = 0x82;
+	crtc.regStartHorizRetrace = 0x54;
+	crtc.regEndHorizRetrace = 0x80;
+	crtc.regVertTotal = 0xBF;
+	crtc.regOverflow = 0x1F;
+	crtc.regPresetRowScan = 0x00;
+	crtc.regMaxScanLine = 0x41;
 	// crtc.regCursorStart = 0x00;
 	// crtc.regCursorEnd = 0x00;
 	// crtc.regStartAddressHigh = 0x00;
 	// crtc.regStartAddressLow = 0x00;
 	// crtc.regCursorLocationHigh = 0x00;
 	// crtc.regCursorLocationLow = 0x00;
-	// crtc.regVertRetraceStart = 0x9C;
-	// crtc.regVertRetraceEnd = 0x0E;
-	// crtc.regVertDisplayEnd = 0x8F;
-	// crtc.regOffset = 0x28;
-	// crtc.regUnderlineLocation = 0x40;
-	// crtc.regStartVertBlanking = 0x96;
-	// crtc.regEndVertBlanking = 0xB9;
-	// crtc.regModeControl = 0xA3;
+	crtc.regVertRetraceStart = 0x9C;
+	crtc.regVertRetraceEnd = 0x8E;
+	crtc.regVertDisplayEnd = 0x8F;
+	crtc.regOffset = 0x28;
+	crtc.regUnderlineLocation = 0x40;
+	crtc.regStartVertBlanking = 0x96;
+	crtc.regEndVertBlanking = 0xB9;
+	crtc.regModeControl = 0xA3;
 	// crtc.regLineCompare = 0xFF;
-	// set_crtc(crtc, ioAddressSelect);
+	set_crtc(crtc, ioAddressSelect);
+
+
+	memset(0xA0000, 0x00, 0xFFFF);
+
+
+
+}
+
+void vga_exit() {
+	// Using mode 3h (80x25 text mode) from:
+	// https://wiki.osdev.org/VGA_Hardware#List_of_register_settings
+	
+	if (vga_mode_var == 0) return;
+
+	struct AttributeController ac;
+	get_ac(ac);
+	ac.regAttributeMode = 0x0C;
+	ac.regOverscanColor = 0x00;
+	ac.regColorPlane = 0x0F;
+	ac.regHorizPixel = 0x08;
+	ac.regPixelShift = 0x00;
+	set_ac(ac);
+
+	// this next bit will erase all the text mode fonts:
+	// Mess w/ CRTC
+	struct ExternalGeneral ext;
+	get_ext(ext);
+	ext.regMisc = 0x67;
+	set_ext(ext);
 
 	// Work with sequencer
 	struct Sequencer seq;
 	get_seq(seq);
-	// Synchronous stop sequencer
-	set_reg_seq(VGA_SEQ_REG_RESET, 0x1);
-	// // Turn on the Screen Disable bit
-	// set_reg_seq(VGA_SEQ_REG_CLOCKING, seq.regClocking | (1 << 5));
-	// Turn on extended mem, odd/even, chain 4
-	set_reg_seq(VGA_SEQ_REG_MEM, 0xE);
-	// Set map mask
-	set_reg_seq(VGA_SEQ_REG_MAP, 0xF);
-	// Turn off the sync reset bit
-	set_reg_seq(VGA_SEQ_REG_RESET, 0x3);
-
-	// memset(0xb8000, 0x0, 0x2000);
-	vga_plot_pixel(0,0, COLOR_GREEN);
-	vga_plot_pixel(2,2, COLOR_GREEN);
-
-	// '@'
-	// memset(0xb8000+0x2000, 0xF0, 0x80);
-	// 'A'
-	// memset(0xb8000+0x2080, 0xFF, 0x80);
-	// 'B'
-	// memset(0xb8000+0x2080 + 0x80, 0xF0, 0x80);
-	// 'C' - let's set a custom character value
-	// memset(0xb8000+0x2080 + 0x80*2, 0xFF, 128/8);
-	unsigned char LetterA[16] = {
-		0b00000000,  // byte 0
-		0b00000000,  // byte 1
-		0b00000000,  // byte 2
-		0b00010000,  // byte 3
-		0b00111000,  // byte 4
-		0b01101100,  // byte 5
-		0b11000110,  // byte 6
-		0b11000110,  // byte 7
-		0b11111110,  // byte 8
-		0b11000110,  // byte 9
-		0b11000110,  // byte 10
-		0b11000110,  // byte 11
-		0b11000110,  // byte 12
-		0b00000000,  // byte 13
-		0b00000000,  // byte 14
-		0b00000000   // byte 15
-	};
-	// unsigned char *CHAR_C_ADDR = (unsigned char*) 0xba182;
-	// for (u8 i = 0; i < 16; i++) {
-	// 	CHAR_C_ADDR[i*4] = LetterA[i];
-	// 	// CHAR_C_ADDR[i*4+1] = 0x00;
-	// 	// CHAR_C_ADDR[i*4+2] = 0x00;
-	// 	// CHAR_C_ADDR[i*4+3] = 0x00;
-	// }
-    // CHAR_C_ADDR[7] = 0b11000110;
-    // CHAR_C_ADDR[8] = 0b11111110;
-    // CHAR_C_ADDR[9] = 0b11000110;
-    // CHAR_C_ADDR[10] = 0b11000110;
-    // CHAR_C_ADDR[11] = 0b11000110;
-    // CHAR_C_ADDR[12] = 0b11000110;
-    // CHAR_C_ADDR[13] = 0b00000000;
-    // CHAR_C_ADDR[14] = 0b00000000;
-    // CHAR_C_ADDR[15] = 0b00000000;
-	// 'D'
-	// memset(0xb8000+0x2080 + 0x80*4, 0xF0, 0x80);
-
-	// vga_clear_screen();
-	// vga_plot_pixel(0, 0, COLOR_GREEN);
-	// vga_plot_pixel(1, 0, COLOR_PURPLE);
-    // vga_plot_pixel(1,1,COLOR_GREEN);
-    // vga_plot_pixel(2,1,COLOR_GREEN);
-    // vga_plot_pixel(2,2,COLOR_GREEN);
-	// // draw rectangle
-	// draw_rectangle(150, 10, 100, 50);
-	// // draw some faces
-	// draw_happy_face(10,10);
-	// draw_happy_face(100,100);
-	// draw_happy_face(300,150);
-	// // bounds
-	// vga_plot_pixel(0, 0, 15);
-	// vga_plot_pixel(319, 199, COLOR_PURPLE);
-	// // see some colors
-	// for (int i = 0; i < 15; i++) {
-	// 	for (int j = 0; j < 100; j++) {
-	// 		vga_plot_pixel(i, 50+j, i);
-	// 	}
-	// }
-	
-}
-
-void vga_exit() {
-	if (vga_mode_var == 0) return;
-
-	// this next bit will erase all the text mode fonts:
-	// // Mess w/ CRTC
-	// struct ExternalGeneral ext;
-	// get_ext(ext);
-	// // set_ext(ext);
-
-	// u8 ioAddressSelect = ext.regMisc & 0b1;
-
-	// struct CathodeRayTubeController crtc;
-	// get_crtc(crtc, ioAddressSelect);
-	// set_reg_crtc(VGA_CRTC_REG_MAX_SCAN_LINE, 0x00, ioAddressSelect);
-
-	// Put sequencer back
-	struct Sequencer seq;
-	get_seq(seq);
-	// Synchronous stop sequencer
-	set_reg_seq(VGA_SEQ_REG_RESET, 0x1);
-	// // Turn on the Screen Disable bit
-	// set_reg_seq(VGA_SEQ_REG_CLOCKING, seq.regClocking | (1 << 5));
-	// Turn off extended mem, odd/even, chain 4
-	set_reg_seq(VGA_SEQ_REG_MEM, 0x0);
-	// Turn off the sync reset bit
-	set_reg_seq(VGA_SEQ_REG_RESET, 0x3);
+	set_reg_seq(VGA_SEQ_REG_CLOCKING, 0x00);
+	set_reg_seq(VGA_SEQ_REG_CHAR, 0x00);
+	set_reg_seq(VGA_SEQ_REG_MEM, 0x07);
 
 	struct GraphicsController gc;
-	u8 newValue = gc.regMisc;
-	// Set alphanumeric disable to 0 (turn on text mode)
-	newValue &= 0;
-	// Set RAM enable to 1
-	newValue |= 0b10;
-	// Select mem map 0xb8000
-	newValue |= 0b1100;
 	get_gc(gc);
-	set_reg_gc(VGA_GC_REG_MISC, newValue);
+	set_reg_gc(VGA_GC_REG_GRAPHICSMODE, 0x10);
+	set_reg_gc(VGA_GC_REG_MISC, 0x0E);
 
-	// struct AttributeController ac;
-	// get_ac(ac);
-	// set_ac(ac);
-
-	// struct ExternalGeneral ext;
-	// get_ext(ext);
-	// set_ext(ext);
-
-	// struct GraphicsController gc;
-	// get_gc(gc);
-	// gc.regMisc = 0xE;
-	// set_gc(gc);
-
-	// u8 ioAddressSelect = ext.regMisc & 0b1;
-	// struct CathodeRayTubeController crtc;
-	// get_crtc(crtc, ioAddressSelect);
-	// set_crtc(crtc, ioAddressSelect);
-
-	// struct Sequencer seq;
-	// get_seq(seq);
-	// set_seq(seq);
+	u8 ioAddressSelect = 1; // assume color mode. // ext.regMisc & 0b1;
+	struct CathodeRayTubeController crtc;
+	get_crtc(crtc, ioAddressSelect);
+	crtc.regHorizTotal = 0x5F;
+	crtc.regEndHorizDisplay = 0x4F;
+	crtc.regStartHorizBlanking = 0x50;
+	crtc.regEndHorizBlanking = 0x82;
+	crtc.regStartHorizRetrace = 0x55;
+	crtc.regEndHorizRetrace = 0x81;
+	crtc.regVertTotal = 0xBF;
+	crtc.regOverflow = 0x1F;
+	crtc.regPresetRowScan = 0x00;
+	crtc.regMaxScanLine = 0x4F;
+	// crtc.regCursorStart = 0x00;
+	// crtc.regCursorEnd = 0x00;
+	// crtc.regStartAddressHigh = 0x00;
+	// crtc.regStartAddressLow = 0x00;
+	// crtc.regCursorLocationHigh = 0x00;
+	// crtc.regCursorLocationLow = 0x00;
+	crtc.regVertRetraceStart = 0x9C;
+	crtc.regVertRetraceEnd = 0x8E;
+	crtc.regVertDisplayEnd = 0x8F;
+	crtc.regOffset = 0x28;
+	crtc.regUnderlineLocation = 0x1F;
+	crtc.regStartVertBlanking = 0x96;
+	crtc.regEndVertBlanking = 0xB9;
+	crtc.regModeControl = 0xA3;
+	// crtc.regLineCompare = 0xFF;
+	set_crtc(crtc, ioAddressSelect);
 
 	// Restore text-mode video memory
 	memcpy(0xb8000, 0x0001b8000, 0x3FFF);

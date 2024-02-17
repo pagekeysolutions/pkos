@@ -13,13 +13,13 @@ void set_ext(struct ExternalGeneral config) {
      * both specify separate addresses for mono/color
      * However, Input Status #0 and #1 are both read-only.
     */
-    if (ioAddressSelect == 0) {
-        // Mono
-        ioport_out(VGA_FEAT_OUT_MONO, config.regFeature);
-    } else {
-        // Color
-        ioport_out(VGA_FEAT_OUT_COLOR, config.regFeature);
-    }
+    // if (ioAddressSelect == 0) {
+    //     // Mono
+    //     ioport_out(VGA_FEAT_OUT_MONO, config.regFeature);
+    // } else {
+    //     // Color
+    //     ioport_out(VGA_FEAT_OUT_COLOR, config.regFeature);
+    // }
 }
 
 void get_ext(struct ExternalGeneral config) {

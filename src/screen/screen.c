@@ -47,7 +47,9 @@ void printchar(char c) {
 void printchar_at(char c, int row, int col) {
 	// OFFSET = (ROW * 80) + COL
 	char* offset = (char*) (VIDMEM + 2*((row * COLS) + col));
+	// Character value:
 	*offset = c;
+	// Attribute (color):
 	*(offset+1) = 0x06;
 }
 
