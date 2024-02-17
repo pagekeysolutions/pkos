@@ -26,6 +26,7 @@
 #define COLOR_BRIGHT_PURPLE 0xD
 #define COLOR_BEIGE 0xE
 #define COLOR_INDIGO 0xF
+#define COLOR_WHITE 0x3F
 
 
 unsigned int vga_mode_var = 0;
@@ -144,7 +145,7 @@ void vga_enter() {
 	struct Sequencer seq;
 	get_seq(seq);
 	set_reg_seq(VGA_SEQ_REG_CLOCKING, 0x01);
-	set_reg_seq(VGA_SEQ_REG_MAP, 0x0F); // <--------------------- everything hinges on this!!!!!!!!!!!!!
+	set_reg_seq(VGA_SEQ_REG_MAP, 0x0F);
 	set_reg_seq(VGA_SEQ_REG_CHAR, 0x00);
 	set_reg_seq(VGA_SEQ_REG_MEM, 0x0E);
 
@@ -187,20 +188,19 @@ void vga_enter() {
 	set_crtc(crtc, ioAddressSelect);
 
 
+	// Top portion of screen we can edit
 	memset(0xA03F4, COLOR_PURPLE, 0xFFF-0x3F4);
-	// memset(0xA1000, COLOR_GREEN, 500);
-	memset(0xA4000, COLOR_SKY_BLUE, 0xBD12+226);
+	// Bottom portion of screen we can edit
+	memset(0xA4000, COLOR_WHITE, 0xBD12+226);
 
 	// Set 0,0 to green
 	memset(0xA03F4, COLOR_GREEN, 1);
 	// Set top left to green
 	memset(0xAFDF3, COLOR_GREEN, 1);
 
-	// draw_happy_face(0,0);
+	draw_happy_face(150,150);
 
-	// draw_happy_face(150,150);
-
-	// draw_rectangle(100,100, 10, 10);
+	draw_rectangle(100,100, 10, 10);
 }
 
 void vga_exit() {
@@ -236,7 +236,7 @@ void vga_exit() {
 	restore_vidmem();
 
 	set_reg_seq(VGA_SEQ_REG_CLOCKING, 0x00);
-	set_reg_seq(VGA_SEQ_REG_MAP, 0x0F); // <--------------------- everything hinges on this!!!!!!!!!!!!!
+	set_reg_seq(VGA_SEQ_REG_MAP, 0x0F);
 	set_reg_seq(VGA_SEQ_REG_CHAR, 0x00);
 	set_reg_seq(VGA_SEQ_REG_MEM, 0x07);
 
