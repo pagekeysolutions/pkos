@@ -11,8 +11,21 @@
 #include "vga_config.h"
 
 #define COLOR_BLACK 0x0
+#define COLOR_DARK_BLUE 0x1
 #define COLOR_GREEN 0x2
-#define COLOR_PURPLE 0xf
+#define COLOR_TEAL 0x3
+#define COLOR_RED 0x4
+#define COLOR_PURPLE 0x5
+#define COLOR_YELLOW 0x6
+#define COLOR_GRAY 0x7
+#define COLOR_NAVY 0x8
+#define COLOR_BLUE 0x9
+#define COLOR_LIGHT_GREEN 0xA
+#define COLOR_SKY_BLUE 0xB
+#define COLOR_MAROON 0xC
+#define COLOR_BRIGHT_PURPLE 0xD
+#define COLOR_BEIGE 0xE
+#define COLOR_INDIGO 0xF
 
 
 unsigned int vga_mode_var = 0;
@@ -176,7 +189,7 @@ void vga_enter() {
 
 	memset(0xA03F4, COLOR_PURPLE, 0xFFF-0x3F4);
 	// memset(0xA1000, COLOR_GREEN, 500);
-	memset(0xA4000, COLOR_PURPLE, 0xBD12+226);
+	memset(0xA4000, COLOR_SKY_BLUE, 0xBD12+226);
 
 	// Set 0,0 to green
 	memset(0xA03F4, COLOR_GREEN, 1);
