@@ -72,9 +72,9 @@ void vga_font() {
 	// change font for character map A
 }
 
-#define VID_BACKUP_SRC 0xA0000
-#define VID_BACKUP_DEST 0x0001a0000
-#define VID_BACKUP_AMOUNT 0x1FFFF
+#define VID_BACKUP_SRC 0xB8000
+#define VID_BACKUP_DEST 0x10B800
+#define VID_BACKUP_AMOUNT 0xFFF
 void backup_vidmem() {
 	// Save video memory somewhere else
 	// 0xb8000 to 0xbffff (32K)
@@ -126,7 +126,6 @@ void vga_enter() {
 	set_ext(ext);
 
 	turn_off_sequencer();
-	terrible_sleep_impl(500);
 	backup_vidmem();
 	// Work with sequencer
 	struct Sequencer seq;
@@ -175,8 +174,14 @@ void vga_enter() {
 	set_crtc(crtc, ioAddressSelect);
 
 
-	// memset(0xA0000, 0x0000, 0x1000);
-	// memset(0xB0000, 0x0000, 0xFFFF);
+	memset(0xA03F4, COLOR_PURPLE, 0xFFF-0x3F4);
+	// memset(0xA1000, COLOR_GREEN, 500);
+	memset(0xA4000, COLOR_PURPLE, 0xBD12+226);
+
+	// Set 0,0 to green
+	memset(0xA03F4, COLOR_GREEN, 1);
+	// Set top left to green
+	memset(0xAFDF3, COLOR_GREEN, 1);
 
 	// draw_happy_face(0,0);
 
@@ -208,7 +213,6 @@ void vga_exit() {
 	set_ext(ext);
 
 	turn_off_sequencer();
-	terrible_sleep_impl(500);
 	restore_vidmem();
 	// Work with sequencer
 	struct Sequencer seq;
@@ -216,7 +220,6 @@ void vga_exit() {
 	// turn off sequencer
 	set_reg_seq(VGA_SEQ_REG_RESET, 0x0);
 	// sleep
-	terrible_sleep_impl(1000);
 	restore_vidmem();
 
 	set_reg_seq(VGA_SEQ_REG_CLOCKING, 0x00);
