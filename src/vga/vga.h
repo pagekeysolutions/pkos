@@ -25,6 +25,6 @@ void vga_clear_screen();
 void vga_plot_pixel(int x, int y, unsigned short color);
 
 void draw_happy_face(int x, int y);
-void draw_rectangle(int x, int y, int width, int height);
+void draw_rectangle(int x, int y, int width, int height, int color);
 
 #endif

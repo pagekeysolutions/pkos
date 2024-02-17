@@ -200,7 +200,17 @@ void vga_enter() {
 
 	draw_happy_face(150,150);
 
-	draw_rectangle(100,100, 10, 10);
+	// draw_rectangle(100,100, 10, 10, COLOR_GREEN);
+
+	u8 x = 100;
+	u8 y = 100;
+	while (vga_mode_var == 1) {
+		terrible_sleep_impl(500);
+		draw_rectangle(x-1, y-1, 10, 10, COLOR_WHITE);
+		draw_rectangle(x, y, 10, 10, COLOR_GREEN);
+		x++;
+		y++;
+	}
 }
 
 void vga_exit() {
@@ -283,10 +293,10 @@ void vga_exit() {
 	print_prompt();
 }
 
-void draw_rectangle(int x, int y, int width, int height) {
+void draw_rectangle(int x, int y, int width, int height, int color) {
 	for (int i = 0; i < width; i++) {
 		for (int j = 0; j < height; j++) {
-			vga_plot_pixel(x+i, y+j, COLOR_GREEN);
+			vga_plot_pixel(x+i, y+j, color);
 		}
 	}
 }
