@@ -8,7 +8,10 @@
 u32 get_reg_ac(u32 index) {
     return get_reg(VGA_AC_ADDR | PAS_BIT, VGA_AC_DATA, index);
 }
-u32 set_reg_ac(u32 index, u32 value) {
+u32 set_reg_ac(u32 index, u32 value) {\
+    // Before trying to read the AC address, read 0x3DA
+    // to force the 0x3C0 register into the address state
+    get_reg(VGA_AC_ADDR_PREREAD);
     set_reg(VGA_AC_ADDR | PAS_BIT, VGA_AC_DATA, index, value);
 }
 

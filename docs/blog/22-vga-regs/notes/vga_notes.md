@@ -19,3 +19,11 @@ See 9.14.3 setting text mode (has code snippet)
 Headers: https://github.com/torvalds/linux/blob/master/include/video/vga.h
 
 Implementation: https://github.com/torvalds/linux/blob/master/drivers/video/vgastate.c#L48
+
+## VESA Tutorial
+
+https://wiki.osdev.org/User:Omarrx024/VESA_Tutorial
+
+## VGA Hardware Guide (OSDev)
+
+https://wiki.osdev.org/VGA_Hardware

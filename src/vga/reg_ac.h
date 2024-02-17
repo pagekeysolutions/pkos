@@ -13,6 +13,7 @@ struct AttributeController {
     u8 regPixelShift;       // Pixel Shift Count Register
 };
 // Ports
+#define VGA_AC_ADDR_PREREAD 0x3DA
 #define VGA_AC_ADDR 0x3C0
 #define VGA_AC_DATA 0x3C1
 // Indices
