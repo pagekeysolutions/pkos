@@ -1,3 +1,10 @@
+## [1.0.1](https://gitlab.com/pagekey/apps/pkos/pkos/compare/1.0.0...1.0.1) (2024-02-19)
+
+
+### Bug Fixes
+
+* Clean up build warnings ([9c111c0](https://gitlab.com/pagekey/apps/pkos/pkos/commit/9c111c0236e315ed98bb9dd3f217dcae1623fe62)), closes [#3](https://gitlab.com/pagekey/apps/pkos/pkos/issues/3)
+
 # 1.0.0 (2024-02-09)
 
 
