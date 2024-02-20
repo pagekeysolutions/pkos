@@ -1,8 +1,8 @@
 # OS22: The VGA Rabbit Hole
 
-If you've been watching for the past few days you'd notice that we've been grinding on VGA. Thankfully, it's not just me - this stuff is tough! In fact, OSDev wiki notes that knowing your way around VGA was enough to establish "quite a reputation" [^1].
+If you've been watching for the past few days, you'd notice that we've been grinding on VGA. Thankfully, it's not just me - this stuff is tough! In fact, OSDev wiki notes that, back in the day, knowing your way around VGA was enough to establish "quite a reputation" [^1].
 
-Thankfully, with the help of people who joined the stream, we were able to get to the point where we can draw on *most* of the screen using memory-mapped I/O, and can escape the mode by hitting escape without ruining the text-mode graphics.
+Thankfully, with the help of people who joined the stream, we were able to get to the point where we can draw on *most* of the screen using memory-mapped I/O, and can escape graphics mode by hitting escape without ruining the text-mode graphics.
 
 At the end, I threw in a quick rectangle animation just for fun (which cannot be interrupted).
 
@@ -52,21 +52,31 @@ In OS15, we were able to get the screen drawing working, but unable to get back 
 
 ### How It Looked in OS15
 
+![OS15: When VGA worked](./img/01-os15.png)
+
 This is what we're going for - just a canvas that you can draw pixels on.
 
-[Link](https://gitlab.com/pagekey/apps/pkos/pkos/-/blob/aec21a2e2b9b481a6883ce0843a7c1bd77e537b9/src/vga/vga.c#L9) to register values in working impl
+Here's a [link](https://gitlab.com/pagekey/apps/pkos/pkos/-/blob/aec21a2e2b9b481a6883ce0843a7c1bd77e537b9/src/vga/vga.c#L9) to the VGA register values used in the working implementation.
 
 ### Before
 
-Thanks to Dominik Szasz on Discord for pointing this out beforehand.
+I ended up changing the main branch at some point to allow you to get back into text mode without brekaing anything when you hit ESC. Unfortunately, this completely scrambled out drawings:
 
-(TODO screenshot)
+![Graphics Mode, Before](./img/02-before.png)
+
+Thanks to Dominik Szasz on Discord for pointing this out.
 
 ### After
 
-This is as far as we got. It's possible to switch back and forth and do custom drawing, but the strip in the upper part of the screen must be left alone, or the font will be corrupted when you switch back to text mode.
+After much effort, we got to the point where you can switch back and forth and do some custom drawing. There's one problem, though:
 
-(TODO screenshot)
+![Graphics Mode, After](./img/03-after.png)
+
+The vertically striped areas of the screen must be left alone, or the font will be corrupted when you switch back to text mode. Everything else can be freely drawn upon with no negative effects.
+
+Here's a bonus, a fun pic from along the way when some values got set incorrectly:
+
+![Graphics Mode, Bonus](./img/04-bonus.png)
 
 ## Overview of VGA Registers
 
@@ -74,17 +84,18 @@ There are several groups of VGA registers, each representing a separate subsyste
 
 ### Getting and Settings Values
 
-VGA introduces the concept of separate registers for address and data. Since VGA has a ton of registers and I/O address space is at a premium, this approach lets you access dozens of registers using only a few I/O addresses. Here's how it works.
-
 (TODO - diagram of getting/setting address/data reg)
 
+VGA introduces the concept of separate registers for address and data. Since VGA has a ton of registers and I/O address space is at a premium, this approach lets you access dozens of registers using only a few I/O addresses. Here's how it works.
+
+
 #### I/O Select Bit (Mono/Color)
+
+(TODO - diagram)
 
 A fun little detail of some of the registers was that the I/O address changed based on whether the system was in monochrome or color mode. You can detect which mode the system is in using a bit in the External/General registers.
 
 My solution to this was to check this bit and conditionally use either the MONO or COLOR address constant.
-
-(TODO - diagram)
 
 #### AC Register
 
@@ -121,9 +132,7 @@ Through trial, error, and reading other people's code, I found that the followin
 
 ### Text Mode Attribute Byte
 
-Another blatant error in the code was forgetting to set the color attribute byte when printing characters to the screen. The result was that when clearing the screen in graphics mode, all color bytes get set to 0, which makes the font black text on a black background when you return to text mode. This was a cause of great confusion until someone asked about how text colors work and I revisited that part of the code - so thank you to that person for asking!
-
-TODO lookup name
+Another blatant error in the code was forgetting to set the color attribute byte when printing characters to the screen. The result was that when clearing the screen in graphics mode, all color bytes get set to 0, which makes the font black text on a black background when you return to text mode. This was a cause of great confusion until someone asked about how text colors work and I revisited that part of the code - so thank you to Brigita Yantie for pointing it out!
 
 ### VGA Font Basics
 
@@ -167,7 +176,7 @@ Jon Strong recommended looking into VESA, which, while less widely-supported tha
 
 ### Other Projects, eventually Filesystem
 
-I need to take a break from PKOS after this and work on [Boom Languages CE](). Once that's up and running, it will probably make sense to plan a roadmap for PKOS. People seem to have a lot of enthusiasm for this project, so if I can break things up in a way that others can contribute, too, we could make a lot of progress in a short amount of time!
+I need to take a break from PKOS after this and work on [Boom Languages CE](https://gitlab.com/pagekey/apps/boom/boom-ce). Once that's up and running, it will probably make sense to plan a roadmap for PKOS. People seem to have a lot of enthusiasm for this project, so if I can break things up in a way that others can contribute, too, we could make a lot of progress in a short amount of time!
 
 I think the main priority is being able to interact with hard drives for mass storage. I don't even think a filesystem is necessary, just some kind of persistent storage would be a game-changer. This would open the door to storing programs and compiling them on PKOS, which could eventually lead to writing PKOS code **on PKOS**!
 
@@ -175,11 +184,15 @@ I think the main priority is being able to interact with hard drives for mass st
 
 Most of the reference material can be found in the notes folder of this blog post on GitLab. Other sources are linked directly in the relevant source code.
 
-
 ### Related PageKey Streams
 
 I started livestreaming PageKey videos recently, as an experiment, and it seems to work well! Here are the livestreams that led to the progress described in this video:
 
-- TODO
+- [Custom OS Dust-Off (PKOS!) - Stream 7](https://youtube.com/live/isS3ALwlpPo)
+- [PKOS: Finishing up VGA Improvements - Stream 8](https://youtube.com/live/Gd9qGMlqYfc)
+- [Pesky VGA... (PKOS) - Stream 9](https://youtube.com/live/WKel56TQTpY)
+- [VGA Fonts, are they the key? - Stream 10](https://youtube.com/live/e69PKM1xR1o)
+- [More VGA (and Fonts) - Stream 11](https://youtube.com/live/bcMMHG8sw60)
+- [VGA End Game - Stream 12](https://youtube.com/live/FSSLmEiymKQ)
 
 [^1]: https://wiki.osdev.org/VGA_Hardware#Overview
