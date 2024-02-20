@@ -60,7 +60,7 @@ Here's a [link](https://gitlab.com/pagekey/apps/pkos/pkos/-/blob/aec21a2e2b9b481
 
 ### Before
 
-I ended up changing the main branch at some point to allow you to get back into text mode without brekaing anything when you hit ESC. Unfortunately, this completely scrambled out drawings:
+I ended up changing the main branch at some point to allow you to get back into text mode without brekaing anything when you hit ESC. Unfortunately, this completely scrambled our drawings:
 
 ![Graphics Mode, Before](./img/02-before.png)
 
@@ -80,7 +80,7 @@ Here's a bonus, a fun pic from along the way when some values got set incorrectl
 
 ## Overview of VGA Registers
 
-There are several groups of VGA registers, each representing a separate subsystem (once a separate chip, but usually all-in-one for modern cards). The groups include External/General, Sequencer, Attribute Controller (AC), Graphics Controller (GC), and Cathode Ray Tube Controller (CRTC) registers. While each group has its own idiosyncracies, the technique for getting and setting the values of these registers is mostly the same across the board.
+There are several groups of VGA registers, each representing a separate subsystem (once a separate chip for each, but usually all-in-one for modern cards). The groups include External/General, Sequencer, Attribute Controller (AC), Graphics Controller (GC), and Cathode Ray Tube Controller (CRTC) registers. While each group has its own idiosyncracies, the technique for getting and setting the values of these registers is mostly the same across the board.
 
 ### Getting and Settings Values
 
@@ -88,6 +88,15 @@ There are several groups of VGA registers, each representing a separate subsyste
 
 VGA introduces the concept of separate registers for address and data. Since VGA has a ton of registers and I/O address space is at a premium, this approach lets you access dozens of registers using only a few I/O addresses. Here's how it works.
 
+1. Get the value of the address register and save it in a variable. This is important in case you're on an interrupt routine and someone else was using that register for something else.
+
+2. Write the address register with the index of the data you'd like to read.
+
+3. For *getting* the value, read the data port. For *setting* the value, write your value to the data port.
+
+4. Restore the address register by writing the value you saved from step 1 to the address port.
+
+All of these operations use the `in` and `out` assembly instructions to interact with the CPU's I/O address space (the I/O ports).
 
 #### I/O Select Bit (Mono/Color)
 
@@ -95,44 +104,49 @@ VGA introduces the concept of separate registers for address and data. Since VGA
 
 A fun little detail of some of the registers was that the I/O address changed based on whether the system was in monochrome or color mode. You can detect which mode the system is in using a bit in the External/General registers.
 
-My solution to this was to check this bit and conditionally use either the MONO or COLOR address constant.
+My solution to this was to check this bit and conditionally use either the MONO or COLOR address constant based on whether the bit was `0` or `1`.
 
 #### AC Register
 
-TODO - add to table of contents, figure out which one you had to read first before writing to???
+TODO - add to table of contents
+
+Another strange idiosyncracy noted in the OSDev Wiki was that the Attribute Controller's Attribute Address Register [^2], located at `0x3C0`, can be used for both input and output. To get around this, you must first *read* port `0x3DA` to ensure that `0x3C0` is in the *read* state, then you can use it as a normal address register. [^3]
 
 ## Lessons Learned
 
-I learned a lot of lessons from trying to make this happen - the main one is that VGA is difficult and usually doesn't act how you'd think it would!
+I learned a lot of lessons from trying to make this happen. The main one is that VGA is difficult and usually doesn't act how you'd think it would!
 
 ### Not a State Machine
 
 First, VGA is not a state machine. Intuitively, it would make sense that if you read every single register and save the values, then the graphics card would behave the same when you re-write those values back to all the registers, right?
 
-It turns out that this assumption is wrong. I'm not sure exactly what happens, but at some point, writing to one register affects the values of others. I think that even the order you write the registers in may matter, too.
+It turns out that this assumption is wrong. I'm not sure exactly what happens, but at some point, writing to one register affects the values of others. The order in which you write the register values seems to make a difference.
 
-#### A Working Order
+#### The Flavors of the Subsystems
 
 TODO - add to table of contents
 
-Through trial, error, and reading other people's code, I found that the following procedure works fairly well for entering graphics mode without destroying everything in text mode:
+As I wrote the "driver" for each litle subsystem of VGA, I found that while they are all similar, each had its own "flavor." Here's my impression of each:
 
-1. TODO - sequencer regs, etc.
+- **Graphics Controller (GC)**: Started here - convert existing VGA code to use our drivers
+- **Attribute Controller (AC)**: Very similar to GC but has palette
 
-1. TODO
-
-- GC: Started here - convert existing VGA code to use our drivers
-- AC: Very similar to GC but has palette
-
-- Ext/Gen:
+- **External/General**:
   - Had to do before CRTC b/c CRTC reg #'s dependent on this one
   - First exposure to conditional register #'s
-- CRTC: See EXT, needed an input bit from it to tell mono vs color
-- SEQ: Short, similar to GC approach
+  - Has some weird read-only function registers
+- **Cathode Ray Tube Controller (CRTC)**: See EXT, needed an input bit from it to tell mono vs color
+- **Sequencer**: Short, similar to GC approach. Easy to mess everything up by accident with this one.
 
 ### Text Mode Attribute Byte
 
-Another blatant error in the code was forgetting to set the color attribute byte when printing characters to the screen. The result was that when clearing the screen in graphics mode, all color bytes get set to 0, which makes the font black text on a black background when you return to text mode. This was a cause of great confusion until someone asked about how text colors work and I revisited that part of the code - so thank you to Brigita Yantie for pointing it out!
+Another blatant error in the code was forgetting to set the color attribute byte when printing characters to the screen. The result was a completely black screen when returning to text mode.
+
+It turns out that when you clear the screen in graphics mode by setting all bytes to `0`, you're setting the text-mode attribute bytes back to `0` as well. As a result, when I tried to "type" things to the screen, I was setting the text value, but the font color was black (on a black background), so nothing was visible.
+
+The solution was to be sure to set **both** the character value and the color attribute byte when printing text to the screen. This change is reflected in `src/screen/screen.c`.
+
+Thank you to Brigita Yantie for her questions during the stream - if she hadn't have asked about this, I wouldn't have found it!
 
 ### VGA Font Basics
 
@@ -168,7 +182,7 @@ This VGA exploration really did a number on me - I'm tired of looking into this!
 
 ### Brute Forcing the Font Back
 
-Something is going wrong when modifying the address change for the fonts, but what? The only way I can think to debug is to start with one character and go from there. If I modify the `'A'` character in VGA mode, but then write back the exact value for an `'A'`, what happens?
+Something is going wrong when modifying the addresses containing font information, but what? The only way I can think to debug is to start with one character and go from there. If I modify the `'A'` character in VGA mode, but then write back the exact value for an `'A'`, what happens?
 
 ### VESA: More modern, better docs?
 
@@ -196,3 +210,5 @@ I started livestreaming PageKey videos recently, as an experiment, and it seems 
 - [VGA End Game - Stream 12](https://youtube.com/live/FSSLmEiymKQ)
 
 [^1]: https://wiki.osdev.org/VGA_Hardware#Overview
+[^2]: http://www.osdever.net/FreeVGA/vga/attrreg.htm
+[^3]: https://wiki.osdev.org/VGA_Hardware#Port_0x3C0
