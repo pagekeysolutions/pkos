@@ -26,9 +26,13 @@ See issue [#2](https://gitlab.com/pagekey/apps/pkos/pkos/-/issues/2) and MR [!2]
 
       1. [I/O Select Bit (Mono/Color)](#io-select-bit-monocolor)
 
+      1. [AC Register](#ac-register)
+
 1. [Lessons Learned](#lessons-learned)
 
    1. [Not a State Machine](#not-a-state-machine)
+
+   1. [The Flavors of the Subsystems](#the-flavors-of-the-subsystems)
 
    1. [Text Mode Attribute Byte](#text-mode-attribute-byte)
 
@@ -84,8 +88,6 @@ There are several groups of VGA registers, each representing a separate subsyste
 
 ### Getting and Settings Values
 
-(TODO - diagram of getting/setting address/data reg)
-
 VGA introduces the concept of separate registers for address and data. Since VGA has a ton of registers and I/O address space is at a premium, this approach lets you access dozens of registers using only a few I/O addresses. Here's how it works.
 
 1. Get the value of the address register and save it in a variable. This is important in case you're on an interrupt routine and someone else was using that register for something else.
@@ -100,15 +102,11 @@ All of these operations use the `in` and `out` assembly instructions to interact
 
 #### I/O Select Bit (Mono/Color)
 
-(TODO - diagram)
-
 A fun little detail of some of the registers was that the I/O address changed based on whether the system was in monochrome or color mode. You can detect which mode the system is in using a bit in the External/General registers.
 
 My solution to this was to check this bit and conditionally use either the MONO or COLOR address constant based on whether the bit was `0` or `1`.
 
 #### AC Register
-
-TODO - add to table of contents
 
 Another strange idiosyncracy noted in the OSDev Wiki was that the Attribute Controller's Attribute Address Register [^2], located at `0x3C0`, can be used for both input and output. To get around this, you must first *read* port `0x3DA` to ensure that `0x3C0` is in the *read* state, then you can use it as a normal address register. [^3]
 
@@ -123,8 +121,6 @@ First, VGA is not a state machine. Intuitively, it would make sense that if you 
 It turns out that this assumption is wrong. I'm not sure exactly what happens, but at some point, writing to one register affects the values of others. The order in which you write the register values seems to make a difference.
 
 #### The Flavors of the Subsystems
-
-TODO - add to table of contents
 
 As I wrote the "driver" for each litle subsystem of VGA, I found that while they are all similar, each had its own "flavor." Here's my impression of each:
 
