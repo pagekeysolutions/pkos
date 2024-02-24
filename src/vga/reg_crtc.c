@@ -21,60 +21,60 @@ u32 set_reg_crtc(u32 index, u32 value, u8 ioAddressSelect) {
     }
 }
 
-void set_crtc(struct CathodeRayTubeController config, u8 ioAddressSelect) {
-    set_reg_crtc(VGA_CRTC_REG_HORIZ_TOTAL, config.regHorizTotal, ioAddressSelect);
-    set_reg_crtc(VGA_CRTC_REG_END_HORIZ_DISP, config.regEndHorizDisplay, ioAddressSelect);
-    set_reg_crtc(VGA_CRTC_REG_START_HORIZ_BLANKING, config.regStartHorizBlanking, ioAddressSelect);
-    set_reg_crtc(VGA_CRTC_REG_END_HORIZ_BLANKING, config.regEndHorizBlanking, ioAddressSelect);
-    set_reg_crtc(VGA_CRTC_REG_START_HORIZ_RETRACE, config.regStartHorizRetrace, ioAddressSelect);
-    set_reg_crtc(VGA_CRTC_REG_END_HORIZ_RETRACE, config.regEndHorizRetrace, ioAddressSelect);
-    set_reg_crtc(VGA_CRTC_REG_VERT_TOTAL, config.regVertTotal, ioAddressSelect);
-    set_reg_crtc(VGA_CRTC_REG_OVERFLOW, config.regOverflow, ioAddressSelect);
-    set_reg_crtc(VGA_CRTC_REG_PRESET_ROW_SCAN, config.regPresetRowScan, ioAddressSelect);
-    set_reg_crtc(VGA_CRTC_REG_MAX_SCAN_LINE, config.regMaxScanLine, ioAddressSelect);
-    set_reg_crtc(VGA_CRTC_REG_CURSOR_START, config.regCursorStart, ioAddressSelect);
-    set_reg_crtc(VGA_CRTC_REG_CURSOR_END, config.regCursorEnd, ioAddressSelect);
-    set_reg_crtc(VGA_CRTC_REG_START_ADDR_HIGH, config.regStartAddressHigh, ioAddressSelect);
-    set_reg_crtc(VGA_CRTC_REG_START_ADDR_LOW, config.regStartAddressLow, ioAddressSelect);
-    set_reg_crtc(VGA_CRTC_REG_CURSOR_LOC_HIGH, config.regCursorLocationHigh, ioAddressSelect);
-    set_reg_crtc(VGA_CRTC_REG_CURSOR_LOC_LOW, config.regCursorLocationLow, ioAddressSelect);
-    set_reg_crtc(VGA_CRTC_REG_VERT_RETRACE_START, config.regVertRetraceStart, ioAddressSelect);
-    set_reg_crtc(VGA_CRTC_REG_VERT_RETRACE_END, config.regVertRetraceEnd, ioAddressSelect);
-    set_reg_crtc(VGA_CRTC_REG_VERT_DISPLAY_END, config.regVertDisplayEnd, ioAddressSelect);
-    set_reg_crtc(VGA_CRTC_REG_OFFSET, config.regOffset, ioAddressSelect);
-    set_reg_crtc(VGA_CRTC_REG_UNDERLINE_LOCATION, config.regUnderlineLocation, ioAddressSelect);
-    set_reg_crtc(VGA_CRTC_REG_START_VERT_BLANKING, config.regStartVertBlanking, ioAddressSelect);
-    set_reg_crtc(VGA_CRTC_REG_END_VERT_BLANKING, config.regEndVertBlanking, ioAddressSelect);
-    set_reg_crtc(VGA_CRTC_REG_MODE_CONTROL, config.regModeControl, ioAddressSelect);
-    set_reg_crtc(VGA_CRTC_REG_LINE_COMPARE, config.regLineCompare, ioAddressSelect);
+void set_crtc(struct CathodeRayTubeController *config, u8 ioAddressSelect) {
+    set_reg_crtc(VGA_CRTC_REG_HORIZ_TOTAL, config->regHorizTotal, ioAddressSelect);
+    set_reg_crtc(VGA_CRTC_REG_END_HORIZ_DISP, config->regEndHorizDisplay, ioAddressSelect);
+    set_reg_crtc(VGA_CRTC_REG_START_HORIZ_BLANKING, config->regStartHorizBlanking, ioAddressSelect);
+    set_reg_crtc(VGA_CRTC_REG_END_HORIZ_BLANKING, config->regEndHorizBlanking, ioAddressSelect);
+    set_reg_crtc(VGA_CRTC_REG_START_HORIZ_RETRACE, config->regStartHorizRetrace, ioAddressSelect);
+    set_reg_crtc(VGA_CRTC_REG_END_HORIZ_RETRACE, config->regEndHorizRetrace, ioAddressSelect);
+    set_reg_crtc(VGA_CRTC_REG_VERT_TOTAL, config->regVertTotal, ioAddressSelect);
+    set_reg_crtc(VGA_CRTC_REG_OVERFLOW, config->regOverflow, ioAddressSelect);
+    set_reg_crtc(VGA_CRTC_REG_PRESET_ROW_SCAN, config->regPresetRowScan, ioAddressSelect);
+    set_reg_crtc(VGA_CRTC_REG_MAX_SCAN_LINE, config->regMaxScanLine, ioAddressSelect);
+    set_reg_crtc(VGA_CRTC_REG_CURSOR_START, config->regCursorStart, ioAddressSelect);
+    set_reg_crtc(VGA_CRTC_REG_CURSOR_END, config->regCursorEnd, ioAddressSelect);
+    set_reg_crtc(VGA_CRTC_REG_START_ADDR_HIGH, config->regStartAddressHigh, ioAddressSelect);
+    set_reg_crtc(VGA_CRTC_REG_START_ADDR_LOW, config->regStartAddressLow, ioAddressSelect);
+    set_reg_crtc(VGA_CRTC_REG_CURSOR_LOC_HIGH, config->regCursorLocationHigh, ioAddressSelect);
+    set_reg_crtc(VGA_CRTC_REG_CURSOR_LOC_LOW, config->regCursorLocationLow, ioAddressSelect);
+    set_reg_crtc(VGA_CRTC_REG_VERT_RETRACE_START, config->regVertRetraceStart, ioAddressSelect);
+    set_reg_crtc(VGA_CRTC_REG_VERT_RETRACE_END, config->regVertRetraceEnd, ioAddressSelect);
+    set_reg_crtc(VGA_CRTC_REG_VERT_DISPLAY_END, config->regVertDisplayEnd, ioAddressSelect);
+    set_reg_crtc(VGA_CRTC_REG_OFFSET, config->regOffset, ioAddressSelect);
+    set_reg_crtc(VGA_CRTC_REG_UNDERLINE_LOCATION, config->regUnderlineLocation, ioAddressSelect);
+    set_reg_crtc(VGA_CRTC_REG_START_VERT_BLANKING, config->regStartVertBlanking, ioAddressSelect);
+    set_reg_crtc(VGA_CRTC_REG_END_VERT_BLANKING, config->regEndVertBlanking, ioAddressSelect);
+    set_reg_crtc(VGA_CRTC_REG_MODE_CONTROL, config->regModeControl, ioAddressSelect);
+    set_reg_crtc(VGA_CRTC_REG_LINE_COMPARE, config->regLineCompare, ioAddressSelect);
 }
 
-void get_crtc(struct CathodeRayTubeController config, u8 ioAddressSelect) {
-    config.regHorizTotal = get_reg_crtc(VGA_CRTC_REG_HORIZ_TOTAL, ioAddressSelect);
-    config.regHorizTotal = get_reg_crtc(VGA_CRTC_REG_END_HORIZ_DISP, ioAddressSelect);
-    config.regHorizTotal = get_reg_crtc(VGA_CRTC_REG_START_HORIZ_BLANKING, ioAddressSelect);
-    config.regHorizTotal = get_reg_crtc(VGA_CRTC_REG_END_HORIZ_BLANKING, ioAddressSelect);
-    config.regHorizTotal = get_reg_crtc(VGA_CRTC_REG_START_HORIZ_RETRACE, ioAddressSelect);
-    config.regHorizTotal = get_reg_crtc(VGA_CRTC_REG_END_HORIZ_RETRACE, ioAddressSelect);
-    config.regHorizTotal = get_reg_crtc(VGA_CRTC_REG_VERT_TOTAL, ioAddressSelect);
-    config.regHorizTotal = get_reg_crtc(VGA_CRTC_REG_OVERFLOW, ioAddressSelect);
-    config.regHorizTotal = get_reg_crtc(VGA_CRTC_REG_PRESET_ROW_SCAN, ioAddressSelect);
-    config.regHorizTotal = get_reg_crtc(VGA_CRTC_REG_MAX_SCAN_LINE, ioAddressSelect);
-    config.regHorizTotal = get_reg_crtc(VGA_CRTC_REG_CURSOR_START, ioAddressSelect);
-    config.regHorizTotal = get_reg_crtc(VGA_CRTC_REG_CURSOR_END, ioAddressSelect);
-    config.regHorizTotal = get_reg_crtc(VGA_CRTC_REG_START_ADDR_HIGH, ioAddressSelect);
-    config.regHorizTotal = get_reg_crtc(VGA_CRTC_REG_START_ADDR_LOW, ioAddressSelect);
-    config.regHorizTotal = get_reg_crtc(VGA_CRTC_REG_CURSOR_LOC_HIGH, ioAddressSelect);
-    config.regHorizTotal = get_reg_crtc(VGA_CRTC_REG_CURSOR_LOC_LOW, ioAddressSelect);
-    config.regHorizTotal = get_reg_crtc(VGA_CRTC_REG_VERT_RETRACE_START, ioAddressSelect);
-    config.regHorizTotal = get_reg_crtc(VGA_CRTC_REG_VERT_RETRACE_END, ioAddressSelect);
-    config.regHorizTotal = get_reg_crtc(VGA_CRTC_REG_VERT_DISPLAY_END, ioAddressSelect);
-    config.regHorizTotal = get_reg_crtc(VGA_CRTC_REG_OFFSET, ioAddressSelect);
-    config.regHorizTotal = get_reg_crtc(VGA_CRTC_REG_UNDERLINE_LOCATION, ioAddressSelect);
-    config.regHorizTotal = get_reg_crtc(VGA_CRTC_REG_START_VERT_BLANKING, ioAddressSelect);
-    config.regHorizTotal = get_reg_crtc(VGA_CRTC_REG_END_VERT_BLANKING, ioAddressSelect);
-    config.regHorizTotal = get_reg_crtc(VGA_CRTC_REG_MODE_CONTROL, ioAddressSelect);
-    config.regHorizTotal = get_reg_crtc(VGA_CRTC_REG_LINE_COMPARE, ioAddressSelect);
+void get_crtc(struct CathodeRayTubeController *config, u8 ioAddressSelect) {
+    config->regHorizTotal = get_reg_crtc(VGA_CRTC_REG_HORIZ_TOTAL, ioAddressSelect);
+    config->regHorizTotal = get_reg_crtc(VGA_CRTC_REG_END_HORIZ_DISP, ioAddressSelect);
+    config->regHorizTotal = get_reg_crtc(VGA_CRTC_REG_START_HORIZ_BLANKING, ioAddressSelect);
+    config->regHorizTotal = get_reg_crtc(VGA_CRTC_REG_END_HORIZ_BLANKING, ioAddressSelect);
+    config->regHorizTotal = get_reg_crtc(VGA_CRTC_REG_START_HORIZ_RETRACE, ioAddressSelect);
+    config->regHorizTotal = get_reg_crtc(VGA_CRTC_REG_END_HORIZ_RETRACE, ioAddressSelect);
+    config->regHorizTotal = get_reg_crtc(VGA_CRTC_REG_VERT_TOTAL, ioAddressSelect);
+    config->regHorizTotal = get_reg_crtc(VGA_CRTC_REG_OVERFLOW, ioAddressSelect);
+    config->regHorizTotal = get_reg_crtc(VGA_CRTC_REG_PRESET_ROW_SCAN, ioAddressSelect);
+    config->regHorizTotal = get_reg_crtc(VGA_CRTC_REG_MAX_SCAN_LINE, ioAddressSelect);
+    config->regHorizTotal = get_reg_crtc(VGA_CRTC_REG_CURSOR_START, ioAddressSelect);
+    config->regHorizTotal = get_reg_crtc(VGA_CRTC_REG_CURSOR_END, ioAddressSelect);
+    config->regHorizTotal = get_reg_crtc(VGA_CRTC_REG_START_ADDR_HIGH, ioAddressSelect);
+    config->regHorizTotal = get_reg_crtc(VGA_CRTC_REG_START_ADDR_LOW, ioAddressSelect);
+    config->regHorizTotal = get_reg_crtc(VGA_CRTC_REG_CURSOR_LOC_HIGH, ioAddressSelect);
+    config->regHorizTotal = get_reg_crtc(VGA_CRTC_REG_CURSOR_LOC_LOW, ioAddressSelect);
+    config->regHorizTotal = get_reg_crtc(VGA_CRTC_REG_VERT_RETRACE_START, ioAddressSelect);
+    config->regHorizTotal = get_reg_crtc(VGA_CRTC_REG_VERT_RETRACE_END, ioAddressSelect);
+    config->regHorizTotal = get_reg_crtc(VGA_CRTC_REG_VERT_DISPLAY_END, ioAddressSelect);
+    config->regHorizTotal = get_reg_crtc(VGA_CRTC_REG_OFFSET, ioAddressSelect);
+    config->regHorizTotal = get_reg_crtc(VGA_CRTC_REG_UNDERLINE_LOCATION, ioAddressSelect);
+    config->regHorizTotal = get_reg_crtc(VGA_CRTC_REG_START_VERT_BLANKING, ioAddressSelect);
+    config->regHorizTotal = get_reg_crtc(VGA_CRTC_REG_END_VERT_BLANKING, ioAddressSelect);
+    config->regHorizTotal = get_reg_crtc(VGA_CRTC_REG_MODE_CONTROL, ioAddressSelect);
+    config->regHorizTotal = get_reg_crtc(VGA_CRTC_REG_LINE_COMPARE, ioAddressSelect);
 }
 
 void print_crtc(struct CathodeRayTubeController config, u8 ioAddressSelect) {

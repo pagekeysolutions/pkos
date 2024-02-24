@@ -65,7 +65,7 @@ u32 set_reg(u32 address, u32 data, u32 index, u32 value) {
 
 void vga_info() {
 	struct VGA vga;
-	get_vga(vga);
+	get_vga(&vga);
 	print_vga(vga);
 }
 
@@ -124,26 +124,26 @@ void vga_enter() {
     println("Attempting to switch modes...");
 
 	struct AttributeController ac;
-	get_ac(ac);
+	get_ac(&ac);
 	ac.regAttributeMode = 0x41;
 	ac.regOverscanColor = 0x00;
 	ac.regColorPlane = 0x0F;
 	ac.regHorizPixel = 0x00;
 	ac.regPixelShift = 0x00;
-	set_ac(ac);
+	set_ac(&ac);
 
 	// this next bit will erase all the text mode fonts:
 	// Mess w/ CRTC
 	struct ExternalGeneral ext;
-	get_ext(ext);
+	get_ext(&ext);
 	ext.regMisc = 0x63;
-	set_ext(ext);
+	set_ext(&ext);
 
 	turn_off_sequencer();
 	backup_vidmem();
 	// Work with sequencer
 	struct Sequencer seq;
-	get_seq(seq);
+	get_seq(&seq);
 	set_reg_seq(VGA_SEQ_REG_CLOCKING, 0x01);
 	set_reg_seq(VGA_SEQ_REG_MAP, 0x0F);
 	set_reg_seq(VGA_SEQ_REG_CHAR, 0x00);
@@ -152,14 +152,14 @@ void vga_enter() {
 	turn_on_sequencer();
 
 	struct GraphicsController gc;
-	get_gc(gc);
+	get_gc(&gc);
 	gc.regGraphicsMode = 0x40;
 	gc.regMisc = 0x05;
-	set_gc(gc);
+	set_gc(&gc);
 
 	u8 ioAddressSelect = 1; // assume color mode. // ext.regMisc & 0b1;
 	struct CathodeRayTubeController crtc;
-	get_crtc(crtc, ioAddressSelect);
+	get_crtc(&crtc, ioAddressSelect);
 	crtc.regHorizTotal = 0x5F;
 	crtc.regEndHorizDisplay = 0x4F;
 	crtc.regStartHorizBlanking = 0x50;
@@ -185,7 +185,7 @@ void vga_enter() {
 	crtc.regEndVertBlanking = 0xB9;
 	crtc.regModeControl = 0xA3;
 	// crtc.regLineCompare = 0xFF;
-	set_crtc(crtc, ioAddressSelect);
+	set_crtc(&crtc, ioAddressSelect);
 
 
 	// Top portion of screen we can edit
@@ -202,15 +202,15 @@ void vga_enter() {
 
 	// draw_rectangle(100,100, 10, 10, COLOR_GREEN);
 
-	u8 x = 100;
-	u8 y = 100;
-	while (vga_mode_var == 1) {
-		terrible_sleep_impl(500);
-		draw_rectangle(x-1, y-1, 10, 10, COLOR_WHITE);
-		draw_rectangle(x, y, 10, 10, COLOR_GREEN);
-		x++;
-		y++;
-	}
+	//u8 x = 100;
+	//u8 y = 100;
+	// while (vga_mode_var == 1) {
+	// 	terrible_sleep_impl(500);
+	// 	draw_rectangle(x-1, y-1, 10, 10, COLOR_WHITE);
+	// 	draw_rectangle(x, y, 10, 10, COLOR_GREEN);
+	// 	x++;
+	// 	y++;
+	// }
 }
 
 void vga_exit() {
@@ -220,26 +220,26 @@ void vga_exit() {
 	if (vga_mode_var == 0) return;
 
 	struct AttributeController ac;
-	get_ac(ac);
+	get_ac(&ac);
 	ac.regAttributeMode = 0x0C;
 	ac.regOverscanColor = 0x00;
 	ac.regColorPlane = 0x0F;
 	ac.regHorizPixel = 0x08;
 	ac.regPixelShift = 0x00;
-	set_ac(ac);
+	set_ac(&ac);
 
 	// this next bit will erase all the text mode fonts:
 	// Mess w/ CRTC
 	struct ExternalGeneral ext;
-	get_ext(ext);
+	get_ext(&ext);
 	ext.regMisc = 0x67;
-	set_ext(ext);
+	set_ext(&ext);
 
 	turn_off_sequencer();
 	restore_vidmem();
 	// Work with sequencer
 	struct Sequencer seq;
-	get_seq(seq);
+	get_seq(&seq);
 	// turn off sequencer
 	set_reg_seq(VGA_SEQ_REG_RESET, 0x0);
 	// sleep
@@ -254,13 +254,13 @@ void vga_exit() {
 	turn_on_sequencer();
 
 	struct GraphicsController gc;
-	get_gc(gc);
+	get_gc(&gc);
 	set_reg_gc(VGA_GC_REG_GRAPHICSMODE, 0x10);
 	set_reg_gc(VGA_GC_REG_MISC, 0x0E);
 
 	u8 ioAddressSelect = 1; // assume color mode. // ext.regMisc & 0b1;
 	struct CathodeRayTubeController crtc;
-	get_crtc(crtc, ioAddressSelect);
+	get_crtc(&crtc, ioAddressSelect);
 	crtc.regHorizTotal = 0x5F;
 	crtc.regEndHorizDisplay = 0x4F;
 	crtc.regStartHorizBlanking = 0x50;
@@ -286,7 +286,7 @@ void vga_exit() {
 	crtc.regEndVertBlanking = 0xB9;
 	crtc.regModeControl = 0xA3;
 	// crtc.regLineCompare = 0xFF;
-	set_crtc(crtc, ioAddressSelect);
+	set_crtc(&crtc, ioAddressSelect);
 
 	vga_mode_var = 0;
 

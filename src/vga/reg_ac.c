@@ -15,27 +15,28 @@ u32 set_reg_ac(u32 index, u32 value) {\
     set_reg(VGA_AC_ADDR | PAS_BIT, VGA_AC_DATA, index, value);
 }
 
-void set_ac(struct AttributeController config) {
-    for (u8 i = 0; i < 16; i++) {
-        set_reg_ac(VGA_AC_REG_PALETTE, config.regPalettes[i]);
+void get_ac(struct AttributeController *config) {
+    for (u8 i = 0; i < 15; i++) {
+        config->regPalettes[i] = get_reg_ac(VGA_AC_REG_PALETTE + i);
     }
-    set_reg_ac(VGA_AC_REG_ATTRIB, config.regAttributeMode);
-    set_reg_ac(VGA_AC_REG_OVERSCAN, config.regOverscanColor);
-    set_reg_ac(VGA_AC_REG_COLOR_PLANE, config.regColorPlane);
-    set_reg_ac(VGA_AC_REG_HORIZ_PIXEL, config.regHorizPixel);
-    set_reg_ac(VGA_AC_REG_PIXEL_SHIFT, config.regPixelShift);
+    config->regAttributeMode = get_reg_gc(VGA_AC_REG_ATTRIB);
+    config->regOverscanColor = get_reg_gc(VGA_AC_REG_OVERSCAN);
+    config->regColorPlane    = get_reg_gc(VGA_AC_REG_COLOR_PLANE);
+    config->regHorizPixel    = get_reg_gc(VGA_AC_REG_HORIZ_PIXEL);
+    config->regPixelShift    = get_reg_gc(VGA_AC_REG_PIXEL_SHIFT);
 }
 
-void get_ac(struct AttributeController config) {
-    for (u8 i = 0; i < 15; i++) {
-        config.regPalettes[i] = get_reg_ac(VGA_AC_REG_PALETTE + i);
+void set_ac(struct AttributeController *config) {
+    for (u8 i = 0; i < 16; i++) {
+        set_reg_ac(VGA_AC_REG_PALETTE, config->regPalettes[i]);
     }
-    config.regAttributeMode = get_reg_gc(VGA_AC_REG_ATTRIB);
-    config.regOverscanColor = get_reg_gc(VGA_AC_REG_OVERSCAN);
-    config.regColorPlane    = get_reg_gc(VGA_AC_REG_COLOR_PLANE);
-    config.regHorizPixel    = get_reg_gc(VGA_AC_REG_HORIZ_PIXEL);
-    config.regPixelShift    = get_reg_gc(VGA_AC_REG_PIXEL_SHIFT);
+    set_reg_ac(VGA_AC_REG_ATTRIB, config->regAttributeMode);
+    set_reg_ac(VGA_AC_REG_OVERSCAN, config->regOverscanColor);
+    set_reg_ac(VGA_AC_REG_COLOR_PLANE, config->regColorPlane);
+    set_reg_ac(VGA_AC_REG_HORIZ_PIXEL, config->regHorizPixel);
+    set_reg_ac(VGA_AC_REG_PIXEL_SHIFT, config->regPixelShift);
 }
+
 
 void print_ac(struct AttributeController config) {
     char buffer[8];

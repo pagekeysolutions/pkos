@@ -20,9 +20,9 @@ struct ExternalGeneral {
 #define VGA_INPUT_STATUS_1_IN_MONO   0x3BA // Input Status #1 Register (read-only, MONO)
 #define VGA_INPUT_STATUS_1_IN_COLOR  0x3DA // Input Status #1 Register (read-only, COLOR)
 
-void set_ext(struct ExternalGeneral config);
+void set_ext(struct ExternalGeneral *config);
 
-void get_ext(struct ExternalGeneral config);
+void get_ext(struct ExternalGeneral *config);
 
 void print_ext(struct ExternalGeneral config);
 

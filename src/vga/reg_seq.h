@@ -24,9 +24,9 @@ struct Sequencer {
 u32 get_reg_seq(u32 index);
 u32 set_reg_seq(u32 index, u32 value);
 
-void set_seq(struct Sequencer config);
+void set_seq(struct Sequencer *config);
 
-void get_seq(struct Sequencer config);
+void get_seq(struct Sequencer *config);
 
 void print_seq(struct Sequencer config);
 
