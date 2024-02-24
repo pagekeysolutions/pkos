@@ -120,6 +120,8 @@ void vga_enter() {
 	// https://wiki.osdev.org/VGA_Hardware#List_of_register_settings
 
 	if (vga_mode_var == 1) return;
+	backup_vidmem();
+
 	vga_mode_var = 1;
     println("Attempting to switch modes...");
 
@@ -288,9 +290,11 @@ void vga_exit() {
 	// crtc.regLineCompare = 0xFF;
 	set_crtc(&crtc, ioAddressSelect);
 
-	vga_mode_var = 0;
+    restore_vidmem();
 
-	print_prompt();
+    vga_mode_var = 0;
+
+    print_prompt();
 }
 
 void draw_rectangle(int x, int y, int width, int height, int color) {
