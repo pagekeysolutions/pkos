@@ -13,6 +13,7 @@ It may also contain ideas for future videos.
    :maxdepth: 2
    :caption: Contents:
 
+   blog/index.md
    architecture/index.md
    video_notes/index.md
    CHANGELOG.md

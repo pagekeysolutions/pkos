@@ -2,111 +2,301 @@
 #include "../kernel/kernel.h"
 #include "../memory/memory.h"
 #include "../screen/screen.h"
+#include "../common/stdlib.h"
+#include "reg_ac.h"
+#include "reg_crtc.h"
+#include "reg_ext.h"
+#include "reg_gc.h"
+#include "reg_seq.h"
+#include "vga_config.h"
 
 #define COLOR_BLACK 0x0
+#define COLOR_DARK_BLUE 0x1
 #define COLOR_GREEN 0x2
-#define COLOR_PURPLE 0xf
+#define COLOR_TEAL 0x3
+#define COLOR_RED 0x4
+#define COLOR_PURPLE 0x5
+#define COLOR_YELLOW 0x6
+#define COLOR_GRAY 0x7
+#define COLOR_NAVY 0x8
+#define COLOR_BLUE 0x9
+#define COLOR_LIGHT_GREEN 0xA
+#define COLOR_SKY_BLUE 0xB
+#define COLOR_MAROON 0xC
+#define COLOR_BRIGHT_PURPLE 0xD
+#define COLOR_BEIGE 0xE
+#define COLOR_INDIGO 0xF
+#define COLOR_WHITE 0x3F
 
-#define GRAPHICS_REG_ADDR 0x3ce
-#define GRAPHICS_REG_DATA 0x3cf
-#define GRAPHICS_IDX_MISC 0x06
 
 unsigned int vga_mode_var = 0;
 
-// Graphics Registers: 0x3ce = addr, 0x3cf = data
-// see http://www.osdever.net/FreeVGA/vga/graphreg.htm
-unsigned int get_graphics_reg(unsigned int index) {
-	unsigned int saved_addr_reg = ioport_in(GRAPHICS_REG_ADDR);
-	ioport_out(GRAPHICS_REG_ADDR, index);
-	unsigned int graphics_reg_value = ioport_in(GRAPHICS_REG_DATA);
-	ioport_out(GRAPHICS_REG_ADDR, saved_addr_reg); // restore address register
-	return graphics_reg_value;
-}
-void set_graphics_reg(unsigned int index, unsigned int value) {
-	unsigned int saved_addr_reg = ioport_in(GRAPHICS_REG_ADDR);
-	ioport_out(GRAPHICS_REG_ADDR, index);
-	ioport_out(GRAPHICS_REG_DATA, value);
-	ioport_out(GRAPHICS_REG_ADDR, saved_addr_reg); // restore address register
+u32 get_reg(u32 address, u32 data, u32 index) {
+    /**
+        Get the value of a register using ioports.
+    */
+    // Save the current value of the address register
+    u32 saved_addr_reg = ioport_in(address);
+    // Set the address register to indicate where we will read
+	ioport_out(address, index);
+    // Get the data from that address
+	u32 result = ioport_in(data);
+    // Restore the original value of the address register
+	ioport_out(address, saved_addr_reg);
+    // Return the result
+	return result;
 }
 
+u32 set_reg(u32 address, u32 data, u32 index, u32 value) {
+    /**
+        Set the value of a register using ioports.
+    */
+    // Save the current value of the address register
+	unsigned int saved_addr_reg = ioport_in(address);
+    // Set the address to which we are writing
+	ioport_out(address, index);
+    // Set the value at that address by writing to the data port
+	ioport_out(data, value);
+    // Restore the original value of the address register
+	ioport_out(address, saved_addr_reg);
+}
+
+
+
 void vga_info() {
-	println("Getting VGA info");
-	unsigned int misc_reg = get_graphics_reg(GRAPHICS_IDX_MISC);
-	// RAM Enable: is VGA checking the memory set by CPU? (are we bothering to use mem-mapped I/O from CPU?)
-	unsigned int ram_enable = (misc_reg & 0b10) >> 1;
-	// Memory Map Select: which area of memory should be used to draw the screen?
-	unsigned int mem_map_select = (misc_reg & 0b1100) >> 2;
-	// Alphanumeric Disable: are we disabling text mode (and instead interpreting memory as pixels?)
-	unsigned int alpha_dis = misc_reg & 1;
-	// Pretty-print each of these fields
-	print("RAM enable: ");
-	if (ram_enable == 0) {
-		println("disabled");
-	} else {
-		println("enabled");
+	struct VGA vga;
+	get_vga(vga);
+	print_vga(vga);
+}
+
+void vga_font() {
+	// Change font
+	u8 curFont = get_reg_seq(VGA_SEQ_REG_CHAR);
+	u8 primaryBit0 = (curFont >> 4) & 1;
+	u8 primaryBits1_2 = curFont & 0b11;
+	u8 charSetA = (primaryBits1_2 << 1) | primaryBit0;
+	print("curfont: 0b");
+	println(itoab(charSetA));
+	// set_reg_seq(VGA_SEQ_REG_CHAR, 0b10000);
+
+	println("abcdefghijklmnopqrstuvwxyz");
+	println("?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[]");
+	println("1234567890!?-*");
+	println("hello world");
+	// change font for character map A
+}
+
+#define VID_BACKUP_SRC 0xB8000
+#define VID_BACKUP_DEST 0x10B800
+#define VID_BACKUP_AMOUNT 0xFFF
+void backup_vidmem() {
+	// Save video memory somewhere else
+	// 0xb8000 to 0xbffff (32K)
+	// memcpy(0x0001a0000, 0xa0000, 0x1FFFF);
+	unsigned char *vid_location = (unsigned char*) VID_BACKUP_SRC;
+	unsigned char *backup_location = (unsigned char*) VID_BACKUP_DEST;
+	for (u32 i=0; i < VID_BACKUP_AMOUNT; i++) {
+    	*(backup_location+i) = *(vid_location+i);
 	}
-	print("Memory Map Select: 0b");
-	char buffer[2];
-	println(itoab(mem_map_select, buffer));
-	print("Alphanumeric disable: 0b");
-	println(itoa(alpha_dis, buffer));
+}
+void restore_vidmem() {
+	// Restore text-mode video memory
+	// memcpy(0xa0000, 0x0001a0000, 0x1FFFF);
+	unsigned char *vid_location = (unsigned char*) VID_BACKUP_SRC;
+	unsigned char *backup_location = (unsigned char*) VID_BACKUP_DEST;
+	for (u32 i=0; i < VID_BACKUP_AMOUNT; i++) {
+    	*(vid_location+i) = *(backup_location+i);
+	}
+}
+void turn_off_sequencer() {
+	set_reg_seq(VGA_SEQ_REG_RESET, 0x1);
+}
+void turn_on_sequencer() {
+	set_reg_seq(VGA_SEQ_REG_RESET, 0x3);
 }
 
 void vga_enter() {
+	// Using mode 13h (320x200 linear 256-color mode) from:
+	// https://wiki.osdev.org/VGA_Hardware#List_of_register_settings
+
 	if (vga_mode_var == 1) return;
 	vga_mode_var = 1;
     println("Attempting to switch modes...");
 
-	// Save video memory somewhere else
-	// 0xb8000 to 0xbffff (32K)
-	memcpy(0x0010b8000, 0xb8000, COLS*ROWS*2);
+	struct AttributeController ac;
+	get_ac(ac);
+	ac.regAttributeMode = 0x41;
+	ac.regOverscanColor = 0x00;
+	ac.regColorPlane = 0x0F;
+	ac.regHorizPixel = 0x00;
+	ac.regPixelShift = 0x00;
+	set_ac(ac);
 
-	// Set alphanumeric disable = 1
-	unsigned int misc_reg = get_graphics_reg(GRAPHICS_IDX_MISC);
-	misc_reg |= 1; // bit 0 is alphanumeric disable, set it to 1
-	set_graphics_reg(GRAPHICS_IDX_MISC, misc_reg);
+	// this next bit will erase all the text mode fonts:
+	// Mess w/ CRTC
+	struct ExternalGeneral ext;
+	get_ext(ext);
+	ext.regMisc = 0x63;
+	set_ext(ext);
 
-	memset(0xb8000, 0, 60);
-    // vga_clear_screen();
-	// // draw rectangle
-	// draw_rectangle(150, 10, 100, 50);
-	// // draw some faces
-	// draw_happy_face(10,10);
-	// draw_happy_face(100,100);
-	// draw_happy_face(300,150);
-	// // bounds
-	// vga_plot_pixel(0, 0, 15);
-	// vga_plot_pixel(319, 199, COLOR_PURPLE);
-	// // see some colors
-	// for (int i = 0; i < 15; i++) {
-	// 	for (int j = 0; j < 100; j++) {
-	// 		vga_plot_pixel(i, 50+j, i);
-	// 	}
-	// }
-	
+	turn_off_sequencer();
+	backup_vidmem();
+	// Work with sequencer
+	struct Sequencer seq;
+	get_seq(seq);
+	set_reg_seq(VGA_SEQ_REG_CLOCKING, 0x01);
+	set_reg_seq(VGA_SEQ_REG_MAP, 0x0F);
+	set_reg_seq(VGA_SEQ_REG_CHAR, 0x00);
+	set_reg_seq(VGA_SEQ_REG_MEM, 0x0E);
+
+	turn_on_sequencer();
+
+	struct GraphicsController gc;
+	get_gc(gc);
+	gc.regGraphicsMode = 0x40;
+	gc.regMisc = 0x05;
+	set_gc(gc);
+
+	u8 ioAddressSelect = 1; // assume color mode. // ext.regMisc & 0b1;
+	struct CathodeRayTubeController crtc;
+	get_crtc(crtc, ioAddressSelect);
+	crtc.regHorizTotal = 0x5F;
+	crtc.regEndHorizDisplay = 0x4F;
+	crtc.regStartHorizBlanking = 0x50;
+	crtc.regEndHorizBlanking = 0x82;
+	crtc.regStartHorizRetrace = 0x54;
+	crtc.regEndHorizRetrace = 0x80;
+	crtc.regVertTotal = 0xBF;
+	crtc.regOverflow = 0x1F;
+	crtc.regPresetRowScan = 0x00;
+	crtc.regMaxScanLine = 0x41;
+	// crtc.regCursorStart = 0x00;
+	// crtc.regCursorEnd = 0x00;
+	// crtc.regStartAddressHigh = 0x00;
+	// crtc.regStartAddressLow = 0x00;
+	// crtc.regCursorLocationHigh = 0x00;
+	// crtc.regCursorLocationLow = 0x00;
+	crtc.regVertRetraceStart = 0x9C;
+	crtc.regVertRetraceEnd = 0x8E;
+	crtc.regVertDisplayEnd = 0x8F;
+	crtc.regOffset = 0x28;
+	crtc.regUnderlineLocation = 0x40;
+	crtc.regStartVertBlanking = 0x96;
+	crtc.regEndVertBlanking = 0xB9;
+	crtc.regModeControl = 0xA3;
+	// crtc.regLineCompare = 0xFF;
+	set_crtc(crtc, ioAddressSelect);
+
+
+	// Top portion of screen we can edit
+	memset(0xA03F4, COLOR_PURPLE, 0xFFF-0x3F4);
+	// Bottom portion of screen we can edit
+	memset(0xA4000, COLOR_WHITE, 0xBD12+226);
+
+	// Set 0,0 to green
+	memset(0xA03F4, COLOR_GREEN, 1);
+	// Set top left to green
+	memset(0xAFDF3, COLOR_GREEN, 1);
+
+	draw_happy_face(150,150);
+
+	// draw_rectangle(100,100, 10, 10, COLOR_GREEN);
+
+	u8 x = 100;
+	u8 y = 100;
+	while (vga_mode_var == 1) {
+		terrible_sleep_impl(500);
+		draw_rectangle(x-1, y-1, 10, 10, COLOR_WHITE);
+		draw_rectangle(x, y, 10, 10, COLOR_GREEN);
+		x++;
+		y++;
+	}
 }
 
 void vga_exit() {
+	// Using mode 3h (80x25 text mode) from:
+	// https://wiki.osdev.org/VGA_Hardware#List_of_register_settings
+	
 	if (vga_mode_var == 0) return;
-	// Go back to alphanumeric disable 0
-	unsigned int misc_reg = get_graphics_reg(GRAPHICS_IDX_MISC);
-	misc_reg &= 0; // set alphanum disable back to 0
-	misc_reg |= 0b10; // bit 1 is RAM enable, set it to 1
-	misc_reg |= 0b1100; // set mem map select to 11
-	set_graphics_reg(GRAPHICS_IDX_MISC, misc_reg);
 
-	// Restore text-mode video memory
-	memcpy(0xb8000, 0x0010b8000, COLS*ROWS*2);
+	struct AttributeController ac;
+	get_ac(ac);
+	ac.regAttributeMode = 0x0C;
+	ac.regOverscanColor = 0x00;
+	ac.regColorPlane = 0x0F;
+	ac.regHorizPixel = 0x08;
+	ac.regPixelShift = 0x00;
+	set_ac(ac);
+
+	// this next bit will erase all the text mode fonts:
+	// Mess w/ CRTC
+	struct ExternalGeneral ext;
+	get_ext(ext);
+	ext.regMisc = 0x67;
+	set_ext(ext);
+
+	turn_off_sequencer();
+	restore_vidmem();
+	// Work with sequencer
+	struct Sequencer seq;
+	get_seq(seq);
+	// turn off sequencer
+	set_reg_seq(VGA_SEQ_REG_RESET, 0x0);
+	// sleep
+	restore_vidmem();
+
+	set_reg_seq(VGA_SEQ_REG_CLOCKING, 0x00);
+	set_reg_seq(VGA_SEQ_REG_MAP, 0x0F);
+	set_reg_seq(VGA_SEQ_REG_CHAR, 0x00);
+	set_reg_seq(VGA_SEQ_REG_MEM, 0x07);
+
+	// turn on sequencer
+	turn_on_sequencer();
+
+	struct GraphicsController gc;
+	get_gc(gc);
+	set_reg_gc(VGA_GC_REG_GRAPHICSMODE, 0x10);
+	set_reg_gc(VGA_GC_REG_MISC, 0x0E);
+
+	u8 ioAddressSelect = 1; // assume color mode. // ext.regMisc & 0b1;
+	struct CathodeRayTubeController crtc;
+	get_crtc(crtc, ioAddressSelect);
+	crtc.regHorizTotal = 0x5F;
+	crtc.regEndHorizDisplay = 0x4F;
+	crtc.regStartHorizBlanking = 0x50;
+	crtc.regEndHorizBlanking = 0x82;
+	crtc.regStartHorizRetrace = 0x55;
+	crtc.regEndHorizRetrace = 0x81;
+	crtc.regVertTotal = 0xBF;
+	crtc.regOverflow = 0x1F;
+	crtc.regPresetRowScan = 0x00;
+	crtc.regMaxScanLine = 0x4F;
+	// crtc.regCursorStart = 0x00;
+	// crtc.regCursorEnd = 0x00;
+	// crtc.regStartAddressHigh = 0x00;
+	// crtc.regStartAddressLow = 0x00;
+	// crtc.regCursorLocationHigh = 0x00;
+	// crtc.regCursorLocationLow = 0x00;
+	crtc.regVertRetraceStart = 0x9C;
+	crtc.regVertRetraceEnd = 0x8E;
+	crtc.regVertDisplayEnd = 0x8F;
+	crtc.regOffset = 0x28;
+	crtc.regUnderlineLocation = 0x1F;
+	crtc.regStartVertBlanking = 0x96;
+	crtc.regEndVertBlanking = 0xB9;
+	crtc.regModeControl = 0xA3;
+	// crtc.regLineCompare = 0xFF;
+	set_crtc(crtc, ioAddressSelect);
 
 	vga_mode_var = 0;
 
 	print_prompt();
 }
 
-void draw_rectangle(int x, int y, int width, int height) {
+void draw_rectangle(int x, int y, int width, int height, int color) {
 	for (int i = 0; i < width; i++) {
 		for (int j = 0; j < height; j++) {
-			vga_plot_pixel(x+i, y+j, COLOR_GREEN);
+			vga_plot_pixel(x+i, y+j, color);
 		}
 	}
 }
@@ -142,6 +332,6 @@ void vga_clear_screen() {
 
 void vga_plot_pixel(int x, int y, unsigned short color) {
     unsigned short offset = x + 320 * y;
-    unsigned char *VGA = (unsigned char*) VGA_ADDRESS;
-    VGA[offset] = color;
+	unsigned char *PLANE2 = (unsigned char*) 0xA0000;
+    PLANE2[offset] = color;
 }
