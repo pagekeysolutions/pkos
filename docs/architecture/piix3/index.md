@@ -6,7 +6,7 @@ coach: "n/a"
 approvers: [ "@jonstrong", "@tonyprogrammer" ]
 ---
 
-# PIIX3 Hard Drive Driver
+# IDE Hard Drive Driver
 
 ## Summary
 
@@ -26,53 +26,40 @@ We need to store persistent data or else this is really boring and useless.
 Out of scope:
 
 - Filesystem development
-- Any other device except for the PIIX3
+- Any other device except for the PIIX3 that comes with `qemu-system-i386`
 
 ## Proposal
 
-<!--
-This is where we get down to the specifics of what the proposal actually is,
-but keep it simple!  This should have enough detail that reviewers can
-understand exactly what you're proposing, but should not include things like
-API designs or implementation. The "Design Details" section below is for the
-real nitty-gritty.
-
-You might want to consider including the pros and cons of the proposed solution so that they can be
-compared with the pros and cons of alternatives.
--->
+Hard-code the exact messages that need to be sent to the IDE controller. Then, generalize them into a driver that will work with more devices and in more modes.
 
 ## Design and implementation details
 
-<!--
-This section should contain enough information that the specifics of your
-change are understandable. This may include API specs (though not always
-required) or even code snippets. If there's any ambiguity about HOW your
-proposal will be implemented, this is the place to discuss them.
+### Detecting IDE Devices
 
-If you are not sure how many implementation details you should include in the
-blueprint, the rule of thumb here is to provide enough context for people to
-understand the proposal. As you move forward with the implementation, you may
-need to add more implementation details to the blueprint, as those may become
-an important context for important technical decisions made along the way. A
-blueprint is also a register of such technical decisions. If a technical
-decision requires additional context before it can be made, you probably should
-document this context in a blueprint. If it is a small technical decision that
-can be made in a merge request by an author and a maintainer, you probably do
-not need to document it here. The impact a technical decision will have is
-another helpful information - if a technical decision is very impactful,
-documenting it, along with associated implementation details, is advisable.
+(class code, blah)
 
-If it's helpful to include workflow diagrams or any other related images.
-Diagrams authored in GitLab flavored markdown are preferred. In cases where
-that is not feasible, images should be placed under `images/` in the same
-directory as the `index.md` for the proposal.
--->
+### Detecting Mode
+
+(compatibility vs native mode)
+
+### Command Ports for Compatibility Mode
+
+When in compatibility mode, `0x1F0` is the start address for the master IDE controller [^1].
+
+Offset 0 from the start address is the command I/O port [^2].
+
+Therefore, in compatibility mode, `IDE_MASTER_COMMAND` port is `0x1F0`.
+
+The status port is at offset `0x2` [^2]. Therefore, `IDE_MASTER_STATUS` is `0x1F2` in compatibility mode.
+
+### Sending Commands
+
+TODO
 
 ## Alternative Solutions
 
-<!--
-It might be a good idea to include a list of alternative solutions or paths considered, although it is not required. Include pros and cons for
-each alternative solution/path.
+Cry.
 
-"Do nothing" and its pros and cons could be included in the list too.
--->
+
+[^1]: <https://wiki.osdev.org/IDE>
+[^2]: [PIIX3 Technical Manual](https://pdf.datasheetcatalog.com/datasheet/Intel/mXvqwzr.pdf). See page 30 for I/O ports.

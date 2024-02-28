@@ -3,7 +3,7 @@
 
 #define ROWS 25
 #define COLS 80
-#define VIDMEM 0xb8010
+#define VIDMEM 0xb8000
 #define PROMPT "pkos> "
 #define PROMPT_LENGTH 6
 

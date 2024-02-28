@@ -68,6 +68,9 @@ void lspci() {
     }
 }
 
+
+#define IDE_MASTER_COMMAND 0x1F0
+#define IDE_MASTER_STATUS 0x1F2
 void idetest() {
     struct PCI_Device ide_device = get_pci_device(0,1,1); // hard coded based on lspci output
     println("Hello world");
@@ -79,4 +82,18 @@ void idetest() {
     println(itoah(ide_device.status));
     print("iface: 0x");
     println(itoah(ide_device.prog_interface));
+
+    // Let's try reading the status
+    u8 status = ioport_in(IDE_MASTER_STATUS);
+    print("IDE Master Status: 0x");
+    println(itoah(status));
+
+    // Okay, now send a read DMA command just for fun
+    ioport_out(IDE_MASTER_COMMAND, 0xC8);
+
+    terrible_sleep_impl(1000);
+    
+    status = ioport_in(IDE_MASTER_STATUS);
+    print("IDE Master Status: 0x");
+    println(itoah(status));
 }
