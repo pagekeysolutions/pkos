@@ -37,3 +37,28 @@
 
 - <https://wiki.osdev.org/I/O_Ports>
   - 0x1F0: Primary ATA controller (IDE)
+
+## ATA Driver - RTEMS
+
+<https://docs.rtems.org/branches/master/bsp-howto/ata.html>
+
+## ATA Driver - OSDev
+
+<https://github.com/levex/osdev/blob/master/drivers/ata.c>
+
+- Note: `ATA_PRIMARY_IO` matches addr for master IDE controller in compat mode
+- `ide_identify` function
+  - Sets a bunch of register values up
+  - Sends an IDENTIFY command
+  - Reads status
+  - If status is 0, done
+  - Waits until "busy" bit is not set
+  - Reads status again
+  - Checks error bit
+  - Waits for something?
+  - Reads 256 words into memory at `ide_buf` - could this be the IDE Descriptor Table?
+
+## Paul
+
+- PIO = Slow but easy
+- DMA = Performance
