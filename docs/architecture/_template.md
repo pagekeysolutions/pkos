@@ -4,8 +4,6 @@ creation-date: "yyyy-mm-dd"
 authors: [ "@username" ]
 coach: "@username"
 approvers: [ "@product-manager", "@engineering-manager" ]
-owning-stage: "~devops::<stage>"
-participating-stages: []
 ---
 
 <!--
