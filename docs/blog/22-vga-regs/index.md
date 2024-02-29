@@ -1,5 +1,7 @@
 # OS22: The VGA Rabbit Hole
 
+[YouTube Video](https://youtu.be/bTpE3gleXOo)
+
 If you've been watching for the past few days, you'd notice that we've been grinding on VGA. Thankfully, it's not just me - this stuff is tough! In fact, OSDev wiki notes that, back in the day, knowing your way around VGA was enough to establish "quite a reputation" [^1].
 
 Thankfully, with the help of people who joined the stream, we were able to get to the point where we can draw on *most* of the screen using memory-mapped I/O, and can escape graphics mode by hitting escape without ruining the text-mode graphics.
