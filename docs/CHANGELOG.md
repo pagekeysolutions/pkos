@@ -1,4 +1,20 @@
-# 1.0.0 (2024-02-09)
+# CHANGELOG
+
+## [1.1.0](https://gitlab.com/pagekey/apps/pkos/pkos/compare/1.0.1...1.1.0) (2024-02-28)
+
+
+### Features
+
+* Add OS22 code (The VGA Rabbit Hole) ([2afcc38](https://gitlab.com/pagekey/apps/pkos/pkos/commit/2afcc38b2231a7c9d33d2e6ab9b00e36eb049ba1)), closes [#2](https://gitlab.com/pagekey/apps/pkos/pkos/issues/2)
+
+## [1.0.1](https://gitlab.com/pagekey/apps/pkos/pkos/compare/1.0.0...1.0.1) (2024-02-19)
+
+
+### Bug Fixes
+
+* Clean up build warnings ([9c111c0](https://gitlab.com/pagekey/apps/pkos/pkos/commit/9c111c0236e315ed98bb9dd3f217dcae1623fe62)), closes [#3](https://gitlab.com/pagekey/apps/pkos/pkos/issues/3)
+
+## 1.0.0 (2024-02-09)
 
 
 ### Bug Fixes
