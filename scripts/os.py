@@ -11,9 +11,9 @@ COLOR_GREEN_BOLD = '\033[32;1m'
 COLOR_CYAN_BOLD = '\033[36;1m'
 COLOR_RESET = '\033[0m'
 
-ASSEMBLE_COMMAND = "nasm -f elf32 %s -o %s"
-COMPILE_COMMAND = "gcc -m32 -ffreestanding -fpermissive -c %s -o %s"
-COMPILE_COMMAND_DEBUG = "gcc -ggdb -m32 -ffreestanding -fpermissive -c %s -o %s"
+ASSEMBLE_COMMAND = "nasm -f elf32 -g -F dwarf  %s -o %s"
+COMPILE_COMMAND = "gcc -m32 -ffreestanding -fno-stack-protector -c %s -o %s"
+COMPILE_COMMAND_DEBUG = "gcc -ggdb -Og -m32 -ffreestanding -fno-stack-protector -c %s -o %s"
 COMPILE_TEST_COMMAND = "g++ %s %s -m32 -lgtest -lgtest_main -pthread -fprofile-arcs -ftest-coverage"
 LINK_COMMAND = "ld -m elf_i386 -T %s -o %s %s %s"
 

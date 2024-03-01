@@ -9,6 +9,9 @@
 #include "reg_gc.h"
 #include "reg_seq.h"
 #include "vga_config.h"
+#include "font.h"
+
+#include <stdint.h>
 
 #define COLOR_BLACK 0x0
 #define COLOR_DARK_BLUE 0x1
@@ -29,7 +32,193 @@
 #define COLOR_WHITE 0x3F
 
 
-unsigned int vga_mode_var = 0;
+u32 vga_mode_var = 0;
+
+#define VGA_TEXT_MODE_COLS 80
+#define VGA_TEXT_MODE_ROWS 25
+#define VGA_TEXT_MODE_SIZE (VGA_TEXT_MODE_COLS * VGA_TEXT_MODE_ROWS)
+
+static u16 vga_text_mode_backup[VGA_TEXT_MODE_SIZE];
+
+#define CURRENT (_sbuffers[_sback])
+#define SWAP() (_sback = 1 - _sback)
+
+static u8 *VGA_MEM_BUF = (u8 *) VGA_MEM_ADDR;
+
+//double buffers
+u8 _sbuffers[2][VGA_SCREEN_SIZE];
+u8 _sback = 0;
+
+
+u8 g_320x200x256[] = {
+/* MISC */
+	0x63,
+/* SEQ */
+	0x03, 0x01, 0x0F, 0x00, 0x0E,
+/* CRTC */
+	0x5F, 0x4F, 0x50, 0x82, 0x54, 0x80, 0xBF, 0x1F,
+	0x00, 0x41, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+	0x9C, 0x0E, 0x8F, 0x28,	0x40, 0x96, 0xB9, 0xA3,
+	0xFF,
+/* GC */
+	0x00, 0x00, 0x00, 0x00, 0x00, 0x40, 0x05, 0x0F,
+	0xFF,
+/* AC */
+	0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+	0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F,
+	
+};
+
+u8 g_80x25_text[] =
+{
+/* MISC */
+	0x67,
+/* SEQ */
+	0x03, 0x00, 0x03, 0x00, 0x02,
+/* CRTC */
+	0x5F, 0x4F, 0x50, 0x82, 0x55, 0x81, 0xBF, 0x1F,
+	0x00, 0x4F, 0x0D, 0x0E, 0x00, 0x00, 0x00, 0x50,
+	0x9C, 0x0E, 0x8F, 0x28, 0x1F, 0x96, 0xB9, 0xA3,
+	0xFF,
+/* GC */
+	0x00, 0x00, 0x00, 0x00, 0x00, 0x10, 0x0E, 0x00,
+	0xFF,
+/* AC */
+	0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x14, 0x07,
+	0x38, 0x39, 0x3A, 0x3B, 0x3C, 0x3D, 0x3E, 0x3F,
+	0x0C, 0x00, 0x0F, 0x08, 0x00
+};
+
+#define	pokeb(S,O,V)		_farpokeb(0x10, 16uL * (S) + (O), V)
+#define	pokew(S,O,V)		_farpokeb(0x10, 16uL * (S) + (O), V)
+
+static void _farpokeb(unsigned short selector, unsigned long offset, unsigned char value)
+{
+  __asm__ __volatile__ ("movw %w0,%%fs\n"
+      "	.byte 0x64 \n"
+      "	movb %b1,(%k2)"
+      :
+      : "rm" (selector), "qi" (value), "r" (offset));
+}
+
+void _farpokew(unsigned short selector, unsigned long offset, unsigned short value)
+{
+  __asm__ __volatile__ ("movw %w0,%%fs \n"
+      "	.byte 0x64 \n"
+      "	movw %w1,(%k2)"
+      :
+      : "rm" (selector), "ri" (value), "r" (offset));
+}
+
+void vmemwr(uint32_t dst_off, uint8_t *src, uint32_t count, uint32_t base_addr) 
+{
+    uint8_t *dst = (uint8_t *)(base_addr + dst_off);
+    while (count--) {
+        *dst++ = *src++;
+    }
+}
+
+static void set_plane(unsigned p)
+{
+	unsigned char pmask;
+
+	p &= 3;
+	pmask = 1 << p;
+	/* set read plane */
+	ioport_out(VGA_GC_INDEX, 4);
+	ioport_out(VGA_GC_DATA, p);
+	/* set write plane */
+	ioport_out(VGA_SEQ_INDEX, 2);
+	ioport_out(VGA_SEQ_DATA, pmask);
+}
+
+static void vga_write_font(unsigned char *buf, unsigned font_height)
+{
+	unsigned char seq2, seq4, gc4, gc5, gc6;
+	unsigned i;
+
+/* save registers
+set_plane() modifies GC 4 and SEQ 2, so save them as well */
+	ioport_out(VGA_SEQ_INDEX, 2);
+	seq2 = ioport_in(VGA_SEQ_DATA);
+
+	ioport_out(VGA_SEQ_INDEX, 4);
+	seq4 = ioport_in(VGA_SEQ_DATA);
+/* turn off even-odd addressing (set flat addressing)
+assume: chain-4 addressing already off */
+	ioport_out(VGA_SEQ_DATA, seq4 | 0x04);
+
+	ioport_out(VGA_GC_INDEX, 4);
+	gc4 = ioport_in(VGA_GC_DATA);
+
+	ioport_out(VGA_GC_INDEX, 5);
+	gc5 = ioport_in(VGA_GC_DATA);
+/* turn off even-odd addressing */
+	ioport_out(VGA_GC_DATA, gc5 & ~0x10);
+
+	ioport_out(VGA_GC_INDEX, 6);
+	gc6 = ioport_in(VGA_GC_DATA);
+/* turn off even-odd addressing */
+	ioport_out(VGA_GC_DATA, gc6 & ~0x02);
+/* write font to plane P4 */
+	set_plane(2);
+/* write font 0 */
+	for(i = 0; i < 256; i++)
+	{
+		vmemwr(16384u * 0 + i * 32, buf, font_height, 0xB8000);
+		buf += font_height;
+	}
+// #if 0
+// /* write font 1 */
+// 	for(i = 0; i < 256; i++)
+// 	{
+// 		vmemwr(16384u * 1 + i * 32, buf, font_height);
+// 		buf += font_height;
+// 	}
+// #endif
+
+/* restore registers */
+	ioport_out(VGA_SEQ_INDEX, 2);
+	ioport_out(VGA_SEQ_DATA, seq2);
+	ioport_out(VGA_SEQ_INDEX, 4);
+	ioport_out(VGA_SEQ_DATA, seq4);
+	ioport_out(VGA_GC_INDEX, 4);
+	ioport_out(VGA_GC_DATA, gc4);
+	ioport_out(VGA_GC_INDEX, 5);
+	ioport_out(VGA_GC_DATA, gc5);
+	ioport_out(VGA_GC_INDEX, 6);
+	ioport_out(VGA_GC_DATA, gc6);
+}
+
+static void vga_set_text_mode_palette() {
+    // The default palette for text mode
+    unsigned char palette[48] = {
+        0x00, 0x00, 0x00,  // black
+        0x00, 0x00, 0xAA,  // blue
+        0x00, 0xAA, 0x00,  // green
+        0x00, 0xAA, 0xAA,  // cyan
+        0xAA, 0x00, 0x00,  // red
+        0xAA, 0x00, 0xAA,  // magenta
+        0xAA, 0x55, 0x00,  // brown
+        0xAA, 0xAA, 0xAA,  // light gray
+        0x55, 0x55, 0x55,  // dark gray
+        0x55, 0x55, 0xFF,  // light blue
+        0x55, 0xFF, 0x55,  // light green
+        0x55, 0xFF, 0xFF,  // light cyan
+        0xFF, 0x55, 0x55,  // light red
+        0xFF, 0x55, 0xFF,  // light magenta
+        0xFF, 0xFF, 0x55,  // yellow
+        0xFF, 0xFF, 0xFF   // white
+    };
+
+    // Write the palette to the DAC
+    ioport_out(0x3C8, 0);  // Start at the first color
+    for (int i = 0; i < 48; i++) {
+        ioport_out(0x3C9, palette[i]);
+	}
+}
+
+
 
 u32 get_reg(u32 address, u32 data, u32 index) {
     /**
@@ -52,7 +241,7 @@ u32 set_reg(u32 address, u32 data, u32 index, u32 value) {
         Set the value of a register using ioports.
     */
     // Save the current value of the address register
-	unsigned int saved_addr_reg = ioport_in(address);
+	u32 saved_addr_reg = ioport_in(address);
     // Set the address to which we are writing
 	ioport_out(address, index);
     // Set the value at that address by writing to the data port
@@ -89,25 +278,21 @@ void vga_font() {
 #define VID_BACKUP_SRC 0xB8000
 #define VID_BACKUP_DEST 0x10B800
 #define VID_BACKUP_AMOUNT 0xFFF
+
 void backup_vidmem() {
-	// Save video memory somewhere else
-	// 0xb8000 to 0xbffff (32K)
-	// memcpy(0x0001a0000, 0xa0000, 0x1FFFF);
-	unsigned char *vid_location = (unsigned char*) VID_BACKUP_SRC;
-	unsigned char *backup_location = (unsigned char*) VID_BACKUP_DEST;
-	for (u32 i=0; i < VID_BACKUP_AMOUNT; i++) {
-    	*(backup_location+i) = *(vid_location+i);
+	u16* text_ptr = (u16 *) VID_BACKUP_SRC;
+	for(int i = 0; i < VGA_TEXT_MODE_SIZE; i++) {
+		vga_text_mode_backup[i] = text_ptr[i];
 	}
 }
+
 void restore_vidmem() {
-	// Restore text-mode video memory
-	// memcpy(0xa0000, 0x0001a0000, 0x1FFFF);
-	unsigned char *vid_location = (unsigned char*) VID_BACKUP_SRC;
-	unsigned char *backup_location = (unsigned char*) VID_BACKUP_DEST;
-	for (u32 i=0; i < VID_BACKUP_AMOUNT; i++) {
-    	*(vid_location+i) = *(backup_location+i);
+	u16 *text_ptr = (u16 *) VID_BACKUP_SRC;
+	for(int i = 0; i< VGA_TEXT_MODE_SIZE; i++) {
+		text_ptr[i] = vga_text_mode_backup[i];
 	}
 }
+
 void turn_off_sequencer() {
 	set_reg_seq(VGA_SEQ_REG_RESET, 0x1);
 }
@@ -115,104 +300,121 @@ void turn_on_sequencer() {
 	set_reg_seq(VGA_SEQ_REG_RESET, 0x3);
 }
 
+void vga_write_regs(u8 *regs, bool is_text_mode) {
+	/* ORDER IS IMPORTANT HERE 
+		- STEPS:
+			- write misc. reg (no abstraction structure present)
+			- write sequencer regs
+			- unlock CRTC regs
+				- make sure they remain unlocked
+			- write CRTC regs
+			- write graphics controller regs
+			- write attribute controller regs
+			- configure 256 color pallette if VGA, lock 16 color pallette if not
+	*/
+
+	u32 i;
+
+/* write MISCELLANEOUS reg */
+	ioport_out(VGA_MISC_WRITE, *regs);
+	regs++;
+/* write SEQUENCER regs */
+	for(i = 0; i < VGA_NUM_SEQ_REGS; i++)
+	{
+		ioport_out(VGA_SEQ_INDEX, i);
+		ioport_out(VGA_SEQ_DATA, *regs);
+		regs++;
+	}
+/* unlock CRTC registers */
+	ioport_out(VGA_CRTC_INDEX, 0x03);
+	ioport_out(VGA_CRTC_DATA, ioport_in(VGA_CRTC_DATA) | 0x80);
+	ioport_out(VGA_CRTC_INDEX, 0x11);
+	ioport_out(VGA_CRTC_DATA, ioport_in(VGA_CRTC_DATA) & ~0x80);
+/* make sure they remain unlocked */
+	regs[0x03] |= 0x80;
+	regs[0x11] &= ~0x80;
+/* write CRTC regs */
+	for(i = 0; i < VGA_NUM_CRTC_REGS; i++)
+	{
+		ioport_out(VGA_CRTC_INDEX, i);
+		ioport_out(VGA_CRTC_DATA, *regs);
+		regs++;
+	}
+/* write GRAPHICS CONTROLLER regs */
+	for(i = 0; i < VGA_NUM_GC_REGS; i++)
+	{
+		ioport_out(VGA_GC_INDEX, i);
+		ioport_out(VGA_GC_DATA, *regs);
+		regs++;
+	}
+/* write ATTRIBUTE CONTROLLER regs */
+	for(i = 0; i < VGA_NUM_AC_REGS; i++)
+	{
+		(void)ioport_in(VGA_INSTAT_READ);
+		ioport_out(VGA_AC_INDEX, i);
+		ioport_out(VGA_AC_WRITE, *regs);
+		regs++;
+	}
+
+	if(is_text_mode) {
+		/* lock 16-color palette and unblank display */
+		(void)ioport_in(VGA_INSTAT_READ);
+		ioport_out(VGA_AC_INDEX, 0x20);
+	}
+	else {
+		/* THIS BLOCK NEEDS SOME INVESTIGATIONS 
+			- is this valid palette data?
+			- can this be improved?
+		*/
+		/* Configure 256 color pallette */
+		ioport_out(VGA_AC_INDEX, 0x20);
+
+		ioport_out(VGA_PALETTE_MASK, 0xFF);
+		ioport_out(VGA_PALETTE_WRITE, 0);
+		for (uint8_t i = 0; i < 255; i++) {
+			ioport_out(VGA_PALETTE_DATA, (((i >> 5) & 0x7) * (256 / 8)) / 4);
+			ioport_out(VGA_PALETTE_DATA, (((i >> 2) & 0x7) * (256 / 8)) / 4);
+			ioport_out(VGA_PALETTE_DATA, (((i >> 0) & 0x3) * (256 / 4)) / 4);
+		}
+
+		// set color 255 = white
+		ioport_out(VGA_PALETTE_DATA, 0x3F);
+		ioport_out(VGA_PALETTE_DATA, 0x3F);
+		ioport_out(VGA_PALETTE_DATA, 0x3F);
+	}
+}
+
+static void vga_xor() {
+    for(int x = 0; x < VGA_SCREEN_WIDTH; x++) {
+        for(int y = 0; y < VGA_SCREEN_HEIGHT; y++) {
+        	uint8_t color = VALUE_TO_COLOR(x ^ y);
+			vga_plot_pixel(x, y, color);
+        }
+    }
+}
+
+
+void vga_flip() 
+{
+    memcpy(VGA_MEM_BUF, &CURRENT, VGA_SCREEN_SIZE);
+	SWAP();
+}
+
+
 void vga_enter() {
 	// Using mode 13h (320x200 linear 256-color mode) from:
 	// https://wiki.osdev.org/VGA_Hardware#List_of_register_settings
 
 	if (vga_mode_var == 1) return;
-	backup_vidmem();
-
 	vga_mode_var = 1;
     println("Attempting to switch modes...");
-
-	struct AttributeController ac;
-	get_ac(&ac);
-	ac.regAttributeMode = 0x41;
-	ac.regOverscanColor = 0x00;
-	ac.regColorPlane = 0x0F;
-	ac.regHorizPixel = 0x00;
-	ac.regPixelShift = 0x00;
-	set_ac(&ac);
-
-	// this next bit will erase all the text mode fonts:
-	// Mess w/ CRTC
-	struct ExternalGeneral ext;
-	get_ext(&ext);
-	ext.regMisc = 0x63;
-	set_ext(&ext);
-
-	turn_off_sequencer();
+	
 	backup_vidmem();
-	// Work with sequencer
-	struct Sequencer seq;
-	get_seq(&seq);
-	set_reg_seq(VGA_SEQ_REG_CLOCKING, 0x01);
-	set_reg_seq(VGA_SEQ_REG_MAP, 0x0F);
-	set_reg_seq(VGA_SEQ_REG_CHAR, 0x00);
-	set_reg_seq(VGA_SEQ_REG_MEM, 0x0E);
+	vga_write_regs(g_320x200x256, false);
+	vga_clear_screen();
 
-	turn_on_sequencer();
-
-	struct GraphicsController gc;
-	get_gc(&gc);
-	gc.regGraphicsMode = 0x40;
-	gc.regMisc = 0x05;
-	set_gc(&gc);
-
-	u8 ioAddressSelect = 1; // assume color mode. // ext.regMisc & 0b1;
-	struct CathodeRayTubeController crtc;
-	get_crtc(&crtc, ioAddressSelect);
-	crtc.regHorizTotal = 0x5F;
-	crtc.regEndHorizDisplay = 0x4F;
-	crtc.regStartHorizBlanking = 0x50;
-	crtc.regEndHorizBlanking = 0x82;
-	crtc.regStartHorizRetrace = 0x54;
-	crtc.regEndHorizRetrace = 0x80;
-	crtc.regVertTotal = 0xBF;
-	crtc.regOverflow = 0x1F;
-	crtc.regPresetRowScan = 0x00;
-	crtc.regMaxScanLine = 0x41;
-	// crtc.regCursorStart = 0x00;
-	// crtc.regCursorEnd = 0x00;
-	// crtc.regStartAddressHigh = 0x00;
-	// crtc.regStartAddressLow = 0x00;
-	// crtc.regCursorLocationHigh = 0x00;
-	// crtc.regCursorLocationLow = 0x00;
-	crtc.regVertRetraceStart = 0x9C;
-	crtc.regVertRetraceEnd = 0x8E;
-	crtc.regVertDisplayEnd = 0x8F;
-	crtc.regOffset = 0x28;
-	crtc.regUnderlineLocation = 0x40;
-	crtc.regStartVertBlanking = 0x96;
-	crtc.regEndVertBlanking = 0xB9;
-	crtc.regModeControl = 0xA3;
-	// crtc.regLineCompare = 0xFF;
-	set_crtc(&crtc, ioAddressSelect);
-
-
-	// Top portion of screen we can edit
-	memset(0xA03F4, COLOR_PURPLE, 0xFFF-0x3F4);
-	// Bottom portion of screen we can edit
-	memset(0xA4000, COLOR_WHITE, 0xBD12+226);
-
-	// Set 0,0 to green
-	memset(0xA03F4, COLOR_GREEN, 1);
-	// Set top left to green
-	memset(0xAFDF3, COLOR_GREEN, 1);
-
-	draw_happy_face(150,150);
-
-	// draw_rectangle(100,100, 10, 10, COLOR_GREEN);
-
-	//u8 x = 100;
-	//u8 y = 100;
-	// while (vga_mode_var == 1) {
-	// 	terrible_sleep_impl(500);
-	// 	draw_rectangle(x-1, y-1, 10, 10, COLOR_WHITE);
-	// 	draw_rectangle(x, y, 10, 10, COLOR_GREEN);
-	// 	x++;
-	// 	y++;
-	// }
+	vga_xor();
+	vga_flip();
 }
 
 void vga_exit() {
@@ -220,79 +422,22 @@ void vga_exit() {
 	// https://wiki.osdev.org/VGA_Hardware#List_of_register_settings
 	
 	if (vga_mode_var == 0) return;
+    vga_mode_var = 0;
 
-	struct AttributeController ac;
-	get_ac(&ac);
-	ac.regAttributeMode = 0x0C;
-	ac.regOverscanColor = 0x00;
-	ac.regColorPlane = 0x0F;
-	ac.regHorizPixel = 0x08;
-	ac.regPixelShift = 0x00;
-	set_ac(&ac);
+	// Disable video output during the switch
+    ioport_out(VGA_SEQ_INDEX, 0x01);
+    uint8_t seq1 = ioport_in(VGA_SEQ_DATA);
+    ioport_out(VGA_SEQ_DATA, seq1 | 0x20); // Set bit 5 of Sequencer register 1 to 1 (Screen Off)
 
-	// this next bit will erase all the text mode fonts:
-	// Mess w/ CRTC
-	struct ExternalGeneral ext;
-	get_ext(&ext);
-	ext.regMisc = 0x67;
-	set_ext(&ext);
+	vga_write_regs(g_80x25_text, true);
+	vga_write_font(g_8x16_font, 16);
+	vga_set_text_mode_palette();
 
-	turn_off_sequencer();
-	restore_vidmem();
-	// Work with sequencer
-	struct Sequencer seq;
-	get_seq(&seq);
-	// turn off sequencer
-	set_reg_seq(VGA_SEQ_REG_RESET, 0x0);
-	// sleep
-	restore_vidmem();
-
-	set_reg_seq(VGA_SEQ_REG_CLOCKING, 0x00);
-	set_reg_seq(VGA_SEQ_REG_MAP, 0x0F);
-	set_reg_seq(VGA_SEQ_REG_CHAR, 0x00);
-	set_reg_seq(VGA_SEQ_REG_MEM, 0x07);
-
-	// turn on sequencer
-	turn_on_sequencer();
-
-	struct GraphicsController gc;
-	get_gc(&gc);
-	set_reg_gc(VGA_GC_REG_GRAPHICSMODE, 0x10);
-	set_reg_gc(VGA_GC_REG_MISC, 0x0E);
-
-	u8 ioAddressSelect = 1; // assume color mode. // ext.regMisc & 0b1;
-	struct CathodeRayTubeController crtc;
-	get_crtc(&crtc, ioAddressSelect);
-	crtc.regHorizTotal = 0x5F;
-	crtc.regEndHorizDisplay = 0x4F;
-	crtc.regStartHorizBlanking = 0x50;
-	crtc.regEndHorizBlanking = 0x82;
-	crtc.regStartHorizRetrace = 0x55;
-	crtc.regEndHorizRetrace = 0x81;
-	crtc.regVertTotal = 0xBF;
-	crtc.regOverflow = 0x1F;
-	crtc.regPresetRowScan = 0x00;
-	crtc.regMaxScanLine = 0x4F;
-	// crtc.regCursorStart = 0x00;
-	// crtc.regCursorEnd = 0x00;
-	// crtc.regStartAddressHigh = 0x00;
-	// crtc.regStartAddressLow = 0x00;
-	// crtc.regCursorLocationHigh = 0x00;
-	// crtc.regCursorLocationLow = 0x00;
-	crtc.regVertRetraceStart = 0x9C;
-	crtc.regVertRetraceEnd = 0x8E;
-	crtc.regVertDisplayEnd = 0x8F;
-	crtc.regOffset = 0x28;
-	crtc.regUnderlineLocation = 0x1F;
-	crtc.regStartVertBlanking = 0x96;
-	crtc.regEndVertBlanking = 0xB9;
-	crtc.regModeControl = 0xA3;
-	// crtc.regLineCompare = 0xFF;
-	set_crtc(&crtc, ioAddressSelect);
+	// Re-enable video output after the switch
+    ioport_out(VGA_SEQ_INDEX, 0x01);
+    ioport_out(VGA_SEQ_DATA, seq1 & ~0x20); // Reset bit 5 to 0 (Screen On)
 
     restore_vidmem();
-
-    vga_mode_var = 0;
 
     print_prompt();
 }
@@ -334,8 +479,45 @@ void vga_clear_screen() {
     }
 }
 
-void vga_plot_pixel(int x, int y, unsigned short color) {
-    unsigned short offset = x + 320 * y;
-	unsigned char *PLANE2 = (unsigned char*) 0xA0000;
-    PLANE2[offset] = color;
+static unsigned get_fb_seg(void)
+{
+	unsigned seg;
+
+	ioport_out(VGA_GC_INDEX, 6);
+	seg = ioport_in(VGA_GC_DATA);
+	seg >>= 2;
+	seg &= 3;
+	switch(seg)
+	{
+		case 0:
+		case 1:
+			seg = 0xA000;
+			break;
+		case 2:
+			seg = 0xB000;
+			break;
+		case 3:
+			seg = 0xB800;
+			break;
+	}
+	return seg;
 }
+
+
+static void vpokeb(unsigned off, unsigned val) {
+	pokeb(get_fb_seg(), off, val);
+}
+
+static void vga_write_pixel8(uint32_t x, uint32_t y, uint32_t color) {
+	uint32_t offset = VGA_SCREEN_WIDTH * y + x;
+	CURRENT[offset] =  color;
+}
+
+void vga_plot_pixel(uint32_t x, uint32_t y, uint32_t color) {
+    if (x >= VGA_SCREEN_WIDTH || y >= VGA_SCREEN_HEIGHT) {
+        return;
+    }
+
+    vga_write_pixel8(x, y, color);
+}
+
