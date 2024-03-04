@@ -30,7 +30,7 @@ gdt_code:	; Entry 2: Code segment descriptor
 gdt_data:
 	; Same except for code flag:
 		; Code: 0b0
-	dw 0xfffff	; Limit bits 0-15
+	dw 0xffff	; Limit bits 0-15
 	dw 0x0000	; Base bits 0-15
 	db 0x00		; Base bits 16-23
 	db 10010010b	; Flag set 1 and 2
