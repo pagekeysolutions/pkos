@@ -3,6 +3,7 @@
 #include "../memory/memory.h"
 #include "../screen/screen.h"
 #include "../common/stdlib.h"
+#include "../common/debug.h"
 #include "reg_ac.h"
 #include "reg_crtc.h"
 #include "reg_ext.h"
@@ -12,6 +13,7 @@
 #include "font.h"
 
 #include <stdint.h>
+#include <stdarg.h>
 
 #define COLOR_BLACK 0x0
 #define COLOR_DARK_BLUE 0x1
@@ -89,25 +91,57 @@ u8 g_80x25_text[] =
 	0x0C, 0x00, 0x0F, 0x08, 0x00
 };
 
-#define	pokeb(S,O,V)		_farpokeb(0x10, 16uL * (S) + (O), V)
-#define	pokew(S,O,V)		_farpokeb(0x10, 16uL * (S) + (O), V)
 
-static void _farpokeb(unsigned short selector, unsigned long offset, unsigned char value)
+/* This flag is a bit of a hack. We do not need to continuously backup the palette data.
+   I have noticed corruption on multiple switches. 
+   It would likely be best to get a clean dump of the palette data and use that as a hardcoded data set
+   instead of backing it up every time.
+*/
+bool palette_data_is_valid = false;
+uint8_t palette_256_backup_data[256 * 3];
+
+#define VGA_PALETTE_INDEX 0x3C8
+
+// Method to get all of the 256 color palette data before switching to VGA mode
+void vga_backup_palette_256()
 {
-  __asm__ __volatile__ ("movw %w0,%%fs\n"
-      "	.byte 0x64 \n"
-      "	movb %b1,(%k2)"
-      :
-      : "rm" (selector), "qi" (value), "r" (offset));
+	if(palette_data_is_valid) 
+	{
+		return;
+	}
+
+	// Set the palette index to 0 to start reading colors
+	ioport_out(VGA_PALETTE_INDEX, 0);
+
+	// Read the palette data for all 256 colors
+	for (int i = 0; i < 256; i++)
+	{
+		// Read the red component
+		palette_256_backup_data[i * 3] = ioport_in(VGA_PALETTE_DATA);
+		// Read the green component
+		palette_256_backup_data[i * 3 + 1] = ioport_in(VGA_PALETTE_DATA);
+		// Read the blue component
+		palette_256_backup_data[i * 3 + 2] = ioport_in(VGA_PALETTE_DATA);
+	}
+
+	palette_data_is_valid = true;
 }
 
-void _farpokew(unsigned short selector, unsigned long offset, unsigned short value)
+void vga_restore_palette_256(const uint8_t *palette_data)
 {
-  __asm__ __volatile__ ("movw %w0,%%fs \n"
-      "	.byte 0x64 \n"
-      "	movw %w1,(%k2)"
-      :
-      : "rm" (selector), "ri" (value), "r" (offset));
+	// Set the palette index to 0 to start writing colors
+	ioport_out(VGA_PALETTE_INDEX, 0);
+
+	// Write the palette data for all 256 colors
+	for (int i = 0; i < 256; i++)
+	{
+		// Write the red component
+		ioport_out(VGA_PALETTE_DATA, palette_data[i * 3]);
+		// Write the green component
+		ioport_out(VGA_PALETTE_DATA, palette_data[i * 3 + 1]);
+		// Write the blue component
+		ioport_out(VGA_PALETTE_DATA, palette_data[i * 3 + 2]);
+	}
 }
 
 void vmemwr(uint32_t dst_off, uint8_t *src, uint32_t count, uint32_t base_addr) 
@@ -192,24 +226,24 @@ assume: chain-4 addressing already off */
 
 static void vga_set_text_mode_palette() {
     // The default palette for text mode
-    unsigned char palette[48] = {
-        0x00, 0x00, 0x00,  // black
-        0x00, 0x00, 0xAA,  // blue
-        0x00, 0xAA, 0x00,  // green
-        0x00, 0xAA, 0xAA,  // cyan
-        0xAA, 0x00, 0x00,  // red
-        0xAA, 0x00, 0xAA,  // magenta
-        0xAA, 0x55, 0x00,  // brown
-        0xAA, 0xAA, 0xAA,  // light gray
-        0x55, 0x55, 0x55,  // dark gray
-        0x55, 0x55, 0xFF,  // light blue
-        0x55, 0xFF, 0x55,  // light green
-        0x55, 0xFF, 0xFF,  // light cyan
-        0xFF, 0x55, 0x55,  // light red
-        0xFF, 0x55, 0xFF,  // light magenta
-        0xFF, 0xFF, 0x55,  // yellow
-        0xFF, 0xFF, 0xFF   // white
-    };
+	unsigned char palette[48] = {
+		0x00, 0x00, 0x00, // black
+		0x00, 0x00, 0x2A, // blue
+		0x00, 0x2A, 0x00, // green
+		0x00, 0x2A, 0x2A, // cyan
+		0x2A, 0x00, 0x00, // red
+		0x2A, 0x00, 0x2A, // magenta
+		0x2A, 0x2A, 0x00, // brown
+		0x2A, 0x2A, 0x2A, // light gray
+		0x00, 0x00, 0x15, // dark gray
+		0x00, 0x00, 0x3F, // light blue
+		0x00, 0x2A, 0x15, // light green
+		0x00, 0x2A, 0x3F, // light cyan
+		0x2A, 0x00, 0x15, // light red
+		0x2A, 0x00, 0x3F, // light magenta
+		0x2A, 0x2A, 0x15, // yellow
+		0x2A, 0x2A, 0x3F  // white
+	};
 
     // Write the palette to the DAC
     ioport_out(0x3C8, 0);  // Start at the first color
@@ -280,17 +314,31 @@ void vga_font() {
 #define VID_BACKUP_AMOUNT 0xFFF
 
 void backup_vidmem() {
-	u16* text_ptr = (u16 *) VID_BACKUP_SRC;
-	for(int i = 0; i < VGA_TEXT_MODE_SIZE; i++) {
-		vga_text_mode_backup[i] = text_ptr[i];
-	}
+	//debug_printf("Backing up video memory from 0x%X\n", VID_BACKUP_SRC);
+    u16* text_ptr = (u16 *) VID_BACKUP_SRC;
+    for(int i = 0; i < VGA_TEXT_MODE_SIZE; i++) {
+        u16 cell = text_ptr[i];
+        unsigned char ch = cell & 0xFF; // Extract character
+        unsigned char attr = (cell >> 8) & 0xFF; // Extract attribute
+		//debug_printf("Backing up character (%c, 0x%X) with attribute 0x%X at 0x%X\n", ch, ch, attr, text_ptr + i);
+
+        // Store character and attribute in the backup array
+        vga_text_mode_backup[i] =  text_ptr[i];
+    }
 }
 
 void restore_vidmem() {
-	u16 *text_ptr = (u16 *) VID_BACKUP_SRC;
-	for(int i = 0; i< VGA_TEXT_MODE_SIZE; i++) {
-		text_ptr[i] = vga_text_mode_backup[i];
-	}
+    u16 *text_ptr = (u16 *) VID_BACKUP_SRC;
+    for(int i = 0; i< VGA_TEXT_MODE_SIZE; i++) {
+        u16 cell = vga_text_mode_backup[i];
+        unsigned char ch = cell & 0xFF; // Extract character
+        unsigned char attr = (cell >> 8) & 0xFF; // Extract attribute
+
+		//debug_printf("Restoring character (%c, 0x%X) with attribute 0x%X from 0x%X\n", ch, ch, attr, text_ptr + i);
+
+        // Restore character and attribute from the backup array
+        text_ptr[i] = vga_text_mode_backup[i];
+    }
 }
 
 void turn_off_sequencer() {
@@ -357,6 +405,7 @@ void vga_write_regs(u8 *regs, bool is_text_mode) {
 	}
 
 	if(is_text_mode) {
+		//restore_text_mode_palette();
 		/* lock 16-color palette and unblank display */
 		(void)ioport_in(VGA_INSTAT_READ);
 		ioport_out(VGA_AC_INDEX, 0x20);
@@ -378,6 +427,7 @@ void vga_write_regs(u8 *regs, bool is_text_mode) {
 		}
 
 		// set color 255 = white
+		ioport_out(VGA_PALETTE_WRITE, 0);
 		ioport_out(VGA_PALETTE_DATA, 0x3F);
 		ioport_out(VGA_PALETTE_DATA, 0x3F);
 		ioport_out(VGA_PALETTE_DATA, 0x3F);
@@ -400,6 +450,37 @@ void vga_flip()
 	SWAP();
 }
 
+#define PALETTE_SIZE 16 // Text mode uses 16 colors
+unsigned char original_text_palette[PALETTE_SIZE * 3]; // 3 bytes per color
+
+#define PALETTE_SIZE 16 // Text mode uses 16 colors
+unsigned char original_text_palette[PALETTE_SIZE * 3]; // 3 bytes per color
+
+void backup_text_mode_palette() {
+    ioport_out(0x3C7, 0);  // Set the palette read address to 0
+    debug_printf("Backing up text mode palette:\n");
+    for (int i = 0; i < PALETTE_SIZE * 3; i++) {
+        original_text_palette[i] = ioport_in(0x3C9);
+        if (i % 3 == 0) { // New line for each color entry for readability
+            debug_printf("\nColor %d: ", i / 3);
+        }
+        debug_printf("%X ", original_text_palette[i]);
+    }
+    debug_printf("\n"); // New line after finishing backup
+}
+
+void restore_text_mode_palette() {
+    ioport_out(0x3C8, 0);  // Set the palette write address to 0
+    debug_printf("Restoring text mode palette:\n");
+    for (int i = 0; i < PALETTE_SIZE * 3; i++) {
+        ioport_out(0x3C9, original_text_palette[i]);
+        if (i % 3 == 0) { // New line for each color entry for readability
+            debug_printf("\nColor %d: ", i / 3);
+        }
+        debug_printf("%X ", original_text_palette[i]);
+    }
+    debug_printf("\n"); // New line after finishing restoration
+}
 
 void vga_enter() {
 	// Using mode 13h (320x200 linear 256-color mode) from:
@@ -408,8 +489,11 @@ void vga_enter() {
 	if (vga_mode_var == 1) return;
 	vga_mode_var = 1;
     println("Attempting to switch modes...");
+
+	vga_backup_palette_256();
 	
 	backup_vidmem();
+	backup_text_mode_palette();
 	vga_write_regs(g_320x200x256, false);
 	vga_clear_screen();
 
@@ -430,8 +514,13 @@ void vga_exit() {
     ioport_out(VGA_SEQ_DATA, seq1 | 0x20); // Set bit 5 of Sequencer register 1 to 1 (Screen Off)
 
 	vga_write_regs(g_80x25_text, true);
+	
+	vga_restore_palette_256(palette_256_backup_data);
+	restore_text_mode_palette();
+	
 	vga_write_font(g_8x16_font, 16);
-	vga_set_text_mode_palette();
+	
+	//vga_set_text_mode_palette();
 
 	// Re-enable video output after the switch
     ioport_out(VGA_SEQ_INDEX, 0x01);
@@ -477,35 +566,6 @@ void vga_clear_screen() {
             vga_plot_pixel(i,j,COLOR_BLACK);
         }
     }
-}
-
-static unsigned get_fb_seg(void)
-{
-	unsigned seg;
-
-	ioport_out(VGA_GC_INDEX, 6);
-	seg = ioport_in(VGA_GC_DATA);
-	seg >>= 2;
-	seg &= 3;
-	switch(seg)
-	{
-		case 0:
-		case 1:
-			seg = 0xA000;
-			break;
-		case 2:
-			seg = 0xB000;
-			break;
-		case 3:
-			seg = 0xB800;
-			break;
-	}
-	return seg;
-}
-
-
-static void vpokeb(unsigned off, unsigned val) {
-	pokeb(get_fb_seg(), off, val);
 }
 
 static void vga_write_pixel8(uint32_t x, uint32_t y, uint32_t color) {

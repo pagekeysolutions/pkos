@@ -115,7 +115,7 @@ def run():
     if not os.path.exists(SATA_IMG_PATH):
         with open(SATA_IMG_PATH, 'w'): # just write a blank file for now
             pass
-    pretty_call(f'qemu-system-i386 -kernel {KERNEL_OUT} -monitor stdio {SATA_DRIVE_OPTS}')
+    pretty_call(f'qemu-system-i386 -debugcon file:dbg.out -kernel {KERNEL_OUT} {SATA_DRIVE_OPTS}')
 
 def run_debug():
     build(debug=True)
