@@ -1,5 +1,10 @@
 # PIIX Notes / Research
 
+## IDE Driver Tutorial - OSDev Forums
+
+<https://forum.osdev.org/viewtopic.php?f=1&t=21151>
+- 
+
 ## Wikipedia
 
 <https://en.wikipedia.org/wiki/PIIX>
