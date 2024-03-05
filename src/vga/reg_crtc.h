@@ -66,9 +66,9 @@ struct CathodeRayTubeController {
 u32 get_reg_crtc(u32 index, u8 ioAddressSelect);
 u32 set_reg_crtc(u32 index, u32 value, u8 ioAddressSelect);
 
-void set_crtc(struct CathodeRayTubeController config, u8 ioAddressSelect);
+void set_crtc(struct CathodeRayTubeController *config, u8 ioAddressSelect);
 
-void get_crtc(struct CathodeRayTubeController config, u8 ioAddressSelect);
+void get_crtc(struct CathodeRayTubeController *config, u8 ioAddressSelect);
 
 void print_crtc(struct CathodeRayTubeController config, u8 ioAddressSelect);
 

@@ -17,9 +17,9 @@ struct VGA {
     struct Sequencer seq;
 };
 
-void set_vga(struct VGA config);
+void set_vga(struct VGA *config);
 
-struct VGA get_vga(struct VGA config);
+struct VGA get_vga(struct VGA *config);
 
 void print_vga(struct VGA config);
 

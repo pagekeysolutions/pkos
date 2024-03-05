@@ -24,9 +24,9 @@ struct AttributeController {
 #define VGA_AC_REG_HORIZ_PIXEL  0x13
 #define VGA_AC_REG_PIXEL_SHIFT  0x14
 
-void set_ac(struct AttributeController config);
+void set_ac(struct AttributeController *config);
 
-void get_ac(struct AttributeController config);
+void get_ac(struct AttributeController *config);
 
 void print_ac(struct AttributeController config);
 
