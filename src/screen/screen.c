@@ -50,7 +50,7 @@ void printchar_at(char c, int row, int col) {
 	// Character value:
 	*offset = c;
 	// Attribute (color):
-	*(offset+1) = 0x06;
+	*(offset+1) = 0x07;
 }
 
 void clear_screen() {
