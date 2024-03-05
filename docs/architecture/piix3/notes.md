@@ -3,7 +3,12 @@
 ## IDE Driver Tutorial - OSDev Forums
 
 <https://forum.osdev.org/viewtopic.php?f=1&t=21151>
-- 
+- BAR (Base Address Register)
+- PCI devices have 6 BARs
+- IDE devices use only 5 BARs
+- Parallel IDE has preset BARs: `0x1F0, 0x3F4, 0x170, 0x374, 0x000`
+- Serial: You must figure it out
+
 
 ## Wikipedia
 
