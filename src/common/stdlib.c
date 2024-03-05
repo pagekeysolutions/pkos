@@ -80,3 +80,14 @@ void terrible_sleep_impl(int ticks) {
 	volatile int i = 0;
 	while (i < ticks*100000) i++;
 }
+
+// needs to be in string.c for stdlib compatibility
+int strlen(const char *s)
+{
+	int len = 0;
+	while (s[len])
+	{
+		len++;
+	}
+	return len;
+}

@@ -2,9 +2,9 @@
 #include "../common/types.h"
 
 
-void set_ext(struct ExternalGeneral config) {
-    ioport_out(VGA_MISC_OUT, config.regMisc);
-    u8 ioAddressSelect = config.regMisc & 0b1;
+void set_ext(struct ExternalGeneral *config) {
+    ioport_out(VGA_MISC_OUT, config->regMisc);
+    u8 ioAddressSelect = config->regMisc & 0b1;
     /**
      * The docs say that when this is 0,
      * you need to use the "mono" addresses provided.
@@ -22,16 +22,16 @@ void set_ext(struct ExternalGeneral config) {
     // }
 }
 
-void get_ext(struct ExternalGeneral config) {
-    config.regMisc = ioport_in(VGA_MISC_IN);
-    config.regFeature = ioport_in(VGA_FEAT_IN);
+void get_ext(struct ExternalGeneral *config) {
+    config->regMisc = ioport_in(VGA_MISC_IN);
+    config->regFeature = ioport_in(VGA_FEAT_IN);
 
-    config.regInputStatus0 = ioport_in(VGA_INPUT_STATUS_0_IN);
-    u8 ioAddressSelect = config.regMisc & 0b1;
+    config->regInputStatus0 = ioport_in(VGA_INPUT_STATUS_0_IN);
+    u8 ioAddressSelect = config->regMisc & 0b1;
     if (ioAddressSelect == 0) {
-        config.regInputStatus1 = ioport_in(VGA_INPUT_STATUS_1_IN_MONO);
+        config->regInputStatus1 = ioport_in(VGA_INPUT_STATUS_1_IN_MONO);
     } else {
-        config.regInputStatus1 = ioport_in(VGA_INPUT_STATUS_1_IN_COLOR);
+        config->regInputStatus1 = ioport_in(VGA_INPUT_STATUS_1_IN_COLOR);
     }
 }
 

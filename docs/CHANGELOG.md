@@ -1,4 +1,13 @@
-# [1.1.0](https://gitlab.com/pagekey/apps/pkos/pkos/compare/1.0.1...1.1.0) (2024-02-28)
+## [1.1.1](https://gitlab.com/pagekey/apps/pkos/pkos/compare/1.1.0...1.1.1) (2024-03-05)
+
+
+### Bug Fixes
+
+* Allow VGA to return to text mode ([b1c5c88](https://gitlab.com/pagekey/apps/pkos/pkos/commit/b1c5c88d27aa3dd26d547dca3bd4db5ef90ffb4d)), closes [#13](https://gitlab.com/pagekey/apps/pkos/pkos/issues/13)
+
+# CHANGELOG
+
+## [1.1.0](https://gitlab.com/pagekey/apps/pkos/pkos/compare/1.0.1...1.1.0) (2024-02-28)
 
 
 ### Features
@@ -12,7 +21,7 @@
 
 * Clean up build warnings ([9c111c0](https://gitlab.com/pagekey/apps/pkos/pkos/commit/9c111c0236e315ed98bb9dd3f217dcae1623fe62)), closes [#3](https://gitlab.com/pagekey/apps/pkos/pkos/issues/3)
 
-# 1.0.0 (2024-02-09)
+## 1.0.0 (2024-02-09)
 
 
 ### Bug Fixes

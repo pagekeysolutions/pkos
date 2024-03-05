@@ -1,5 +1,7 @@
 # OS22: The VGA Rabbit Hole
 
+[YouTube Video](https://youtu.be/bTpE3gleXOo)
+
 If you've been watching for the past few days, you'd notice that we've been grinding on VGA. Thankfully, it's not just me - this stuff is tough! In fact, OSDev wiki notes that, back in the day, knowing your way around VGA was enough to establish "quite a reputation" [^1].
 
 Thankfully, with the help of people who joined the stream, we were able to get to the point where we can draw on *most* of the screen using memory-mapped I/O, and can escape graphics mode by hitting escape without ruining the text-mode graphics.
@@ -7,48 +9,6 @@ Thankfully, with the help of people who joined the stream, we were able to get t
 At the end, I threw in a quick rectangle animation just for fun (which cannot be interrupted).
 
 See issue [#2](https://gitlab.com/pagekey/apps/pkos/pkos/-/issues/2) and MR [!2](https://gitlab.com/pagekey/apps/pkos/pkos/-/merge_requests/2) on GitLab for the code discussed in this post.
-
-## Contents
-
-1. [Motviation](#motivation)
-
-   1. [How It Looked in OS15](#how-it-looked-in-os15)
-
-   1. [Before](#how-its-going-now)
-
-   1. [After](#how-its-going-now)
-
-1. [Overview of VGA Registers](#overview-of-vga-registers)
-
-   1. [Getting and Settings Values](#getting-and-settings-values)
-
-      1. [Address and Data Registers](#address-and-data-registers)
-
-      1. [I/O Select Bit (Mono/Color)](#io-select-bit-monocolor)
-
-      1. [AC Register](#ac-register)
-
-1. [Lessons Learned](#lessons-learned)
-
-   1. [Not a State Machine](#not-a-state-machine)
-
-   1. [The Flavors of the Subsystems](#the-flavors-of-the-subsystems)
-
-   1. [Text Mode Attribute Byte](#text-mode-attribute-byte)
-
-   1. [VGA Font Basics](#vga-font-basics)
-
-   1. [Memcpy Woes - Jon's Address Breakthrough](#memcpy-woes---jons-address-breakthrough)
-
-1. [The "Fix" - Beating Around the Bush](#the-fix---beating-around-the-bush)
-
-1. [Next Steps](#next-steps)
-
-   1. [Brute Forcing the Font Back](#brute-forcing-the-font-back)
-
-   1. [VESA: More modern, better docs?](#vesa-more-modern-better-docs)
-
-   1. [Other Projects, eventually Filesystem](#other-projects-eventually-filesystem)
 
 ## Motivation
 
