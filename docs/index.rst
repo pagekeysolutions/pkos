@@ -15,7 +15,6 @@ It may also contain ideas for future videos.
 
    blog/index
    architecture/index
-   video_notes/index
    CHANGELOG
 
 
