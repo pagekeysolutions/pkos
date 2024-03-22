@@ -3,3 +3,4 @@ copyright: '2024, PageKey'
 author: 'Steve'
 release: 'latest'
 package: ''
+template: sphinx
