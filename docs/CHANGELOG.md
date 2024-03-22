@@ -1,3 +1,5 @@
+## [1.1.2](https://gitlab.com/pagekey/apps/pkos/pkos/compare/1.1.1...1.1.2) (2024-03-22)
+
 # CHANGELOG
 
 ## [1.1.1](https://gitlab.com/pagekey/apps/pkos/pkos/compare/1.1.0...1.1.1) (2024-03-05)
