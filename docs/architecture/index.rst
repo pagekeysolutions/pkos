@@ -7,4 +7,4 @@ These documents propose how the system should work, and after they are implement
    :maxdepth: 2
    :caption: Contents:
 
-   example/index.md
+   piix3/index
